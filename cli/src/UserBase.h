@@ -26,8 +26,9 @@ class UserBase
 public:
 	UserBase();
 	~UserBase();
-	void getUsrBase();
-	void showUsers();
+    User parsingUsrPkg(string& pkg);
+    void getUsrBase();
+    void showUsers();
 	void addUsers(User& usrStr);
 	void addUsers(string& name, string& login, string& pwd);
 	void addUsers(const char name[], const char login[], const char pwd[]);

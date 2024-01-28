@@ -148,13 +148,13 @@ void Chat::sendMsg(string msgTo, string msgFrom, string& msg)
 
 string Chat::getMsg(int msgId)
 {
-	string msg = "";
-	msg.append(msgBase->at(msgId).msgTo);
-	msg.append("<|>");
-	msg.append(msgBase->at(msgId).msgFrom);
-	msg.append("<|>");
-	msg.append(msgBase->at(msgId).msgDate);
-	msg.append("<|>");
-	msg.append(msgBase->at(msgId).msg);
-    return msg;
+	string result = "";
+	result.append(msgBase->at(msgId).msgTo);
+	result.append("<|>");
+	result.append(msgBase->at(msgId).msgFrom);
+	result.append("<|>");
+	result.append(msgBase->at(msgId).msgDate);
+	result.append("<|>");
+	result.append(msgBase->at(msgId).msg);
+    return result;
 }

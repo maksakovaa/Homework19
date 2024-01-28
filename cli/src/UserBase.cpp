@@ -11,55 +11,26 @@ UserBase::UserBase()
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
 	getUsrBase();
-	std::ifstream userbase_file(UBPath);
-	if (!userbase_file.is_open())
-	{
-		User admin("Administartor", "admin", sha256("admin2023"));
-		addUsers(admin);
-	}
-	if(userbase_file.is_open())
-	{
-		string s;
-		string delim = "<|>";
-		while (getline(userbase_file, s))
-		{
-			size_t pos = 0;
-			int i = 0;
-			string array[2];
-			while((pos = s.find(delim)) != string::npos)
-			{
-				array[i++] = s.substr(0,pos);
-				s.erase(0, pos + delim.length());
-			}
-			User newUser(array[0], array[1], s);
-			addUsers(newUser);
-		}
-		userbase_file.close();
-	}
-
 }
 
 UserBase::~UserBase()
 {
-	std::ofstream userbase_file(UBPath, std::ios::trunc);
-	if(!userbase_file.is_open())
-	{
-		cout << "Ошибка открытия файла!" << endl;
-	}
-	else
-	{
-		for (int i = 0; i < usrBase->size(); i++)
-		{
-			userbase_file << usrBase->at(i).name;
-			userbase_file << "<|>";
-			userbase_file << usrBase->at(i).login;
-			userbase_file << "<|>";
-			userbase_file << usrBase->at(i).pwd;
-			userbase_file << "\n";
-		}
-		userbase_file.close();
-	}
 	delete usrBase;
+}
+
+User UserBase::parsingUsrPkg(string& pkg)
+{
+	size_t pos = 0;
+	int i = 0;
+	string array[2];
+	string delim = "<|>";
+	while ((pos = pkg.find(delim)) != string::npos)
+	{
+		array[i++] = pkg.substr(0,pos);
+		pkg.erase(0, pos + delim.length());
+	}
+	User newUser(array[0], array[1], pkg);
+	return newUser;
 }
 
 void UserBase::getUsrBase()
@@ -88,7 +59,6 @@ void UserBase::getUsrBase()
     ssize_t bytes = write(socket_fd, "GET_USRBASE", sizeof("GET_USRBASE"));
     bzero(package, sizeof(package));
 
-	std::ofstream userbase_file(UBPath, std::ios::trunc);
 	while (strncmp("USRBASE_END", package, 11) != 0)
 	{
 		read(socket_fd, package, sizeof(package));
@@ -98,17 +68,9 @@ void UserBase::getUsrBase()
 			break;
 		}	
 		string temp = package;
-		if(!userbase_file.is_open())
-		{
-			cout << "ERROR: Ошибка открытия файла!" << endl;
-		}
-		else
-		{
-			userbase_file << temp;
-			userbase_file << "\n";
-		}
+		User newUser = parsingUsrPkg(temp);
+		addUsers(newUser);
 	}
-	userbase_file.close();
 	close(socket_fd);
 }
 

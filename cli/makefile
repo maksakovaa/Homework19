@@ -10,7 +10,7 @@ BINPATH = /usr/local/bin
 LIBPATH = /usr/lib
 DATAPATH = /var/lib/Chat
 
-Chat:	$(SRC) libnav libfun libch libub libnet libsha
+Chat:	$(SRC) libnav libfun libch libub libnet libcrc libsha
 		g++ -o $(TARGET) $(SRC) -L. -l$(NAVLIB) -l$(FUNLIB) -l$(CHLIB) -l$(UBLIB) -l$(NETLIB) -l$(SHALIB)
 
 libnav: src/$(NAVLIB).cpp src/$(NAVLIB).h

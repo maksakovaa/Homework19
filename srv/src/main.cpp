@@ -16,6 +16,69 @@ socklen_t length;
 int socket_fd, connection, bind_status, connect_status;
 char package[PACKAGE_LENGTH];
 
+void sendUsrBase()
+{
+    cout << "GET_USRBASE request accepted" << endl;
+    for (int i = 0; i < Users->getUserCount(); i++)
+    {
+        strcpy(package, Users->getUser(i).data());
+        ssize_t bytes = write(connection, package, sizeof(package));
+        if (bytes >= 0)
+        {
+            cout << "USRBASE package " << i << " sent" << endl;
+        }
+        if (i == Users->getUserCount() - 1)
+        {
+            ssize_t bytes = write(connection, "USRBASE_END", sizeof("USRBASE_END"));
+            if (bytes >= 0)
+            {
+                cout << "USRBASE sended" << endl;
+            }
+        }
+    }
+}
+
+void sendMsgBase()
+{
+    cout << "GET_MSGBASE request accepted" << endl;
+    for (int i = 0; i < mainChat->getMsgCount(); i++)
+    {
+        strcpy(package, mainChat->getMsg(i).data());
+        ssize_t bytes = write(connection, package, sizeof(package));
+        if (bytes >= 0)
+        {
+            cout << "MSGBASE package " << i << " sent" << endl;
+        }
+        if(i == mainChat->getMsgCount()-1)
+        {
+            ssize_t bytes = write(connection, "MSGBASE_END", sizeof("MSGBASE_END"));
+            if (bytes >= 0)
+            {
+                cout << "MSGBASE sended" << endl;
+            }
+        }
+    }
+}
+
+void regUser()
+{
+    cout << "REG_USER request accepted" << endl;
+    bzero(package, PACKAGE_LENGTH);
+    read(connection, package, sizeof(package));
+    string temp = package;
+    string delim = "<|>";
+    string array[2];
+    int i = 0;
+    size_t pos = 0;
+    while((pos = temp.find(delim)) != string::npos)
+	{
+		array[i++] = temp.substr(0,pos);
+		temp.erase(0, pos + delim.length());
+	}
+	User newUser(array[0], array[1], temp);
+    Users->addUsers(newUser);
+}
+
 int main()
 {
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -56,61 +119,29 @@ int main()
         }
         bzero(package, PACKAGE_LENGTH);
         read(connection, package, sizeof(package));
-        if (strncmp("CRC_USRBASE", package, 11) == 0)
+        if (strncmp("CRC_USRBASE", package, 12) == 0)
         {
-            
+            cout << "CRC_USRBASE request accepted" << endl;
         }     
-        else if (strncmp("GET_USRBASE", package, 11) == 0)
+        else if (strncmp("GET_USRBASE", package, 12) == 0)
         {
-            for (int i = 0; i < Users->getUserCount(); i++)
-            {
-                strcpy(package, Users->getUser(i).data());
-                ssize_t bytes = write(connection, package, sizeof(package));
-                if (bytes >= 0)
-                {
-                    cout << "USRBASE package " << i << " sent" << endl;
-                }
-                if(i == Users->getUserCount()-1)
-                {
-                    ssize_t bytes = write(connection, "USRBASE_END", sizeof("USRBASE_END"));
-                    if (bytes >= 0)
-                    {
-                        cout << "USRBASE sended" << endl;
-                    }
-                }
-            }
+            sendUsrBase();
         }
-        else if (strncmp("CRC_MSGBASE", package, 11))
+        else if (strncmp("CRC_MSGBASE", package, 12) == 0)
         {
-            
+            cout << "CRC_MSGBASE request accepted" << endl;
         }
-        else if (strncmp("GET_MSGBASE", package, 11) == 0)
+        else if (strncmp("GET_MSGBASE", package, 12) == 0)
         {
-            for (int i = 0; i < mainChat->getMsgCount(); i++)
-            {
-                strcpy(package, mainChat->getMsg(i).data());
-                ssize_t bytes = write(connection, package, sizeof(package));
-                if (bytes >= 0)
-                {
-                    cout << "MSGBASE package " << i << " sent" << endl;
-                }
-                if(i == mainChat->getMsgCount()-1)
-                {
-                    ssize_t bytes = write(connection, "MSGBASE_END", sizeof("MSGBASE_END"));
-                    if (bytes >= 0)
-                    {
-                        cout << "MSGBASE sended" << endl;
-                    }
-                }
-            }
+            sendMsgBase();
         }
         else if (strncmp("REG_USER", package, 8) == 0)
         {
-
+            regUser();   
         }
         else if (strncmp("SND_MSG", package, 7) == 0)
         {
-            
+            cout << "SND_MSGBASE request accepted" << endl;
         }
     }
     close(socket_fd);

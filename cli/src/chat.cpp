@@ -75,8 +75,17 @@ void Chat::getMsgBase()
         cout << "ERROR: Ошибка подключения к серверу." << endl;
         exit(1);
     }
+	else
+	{
+		cout << "Connected" << endl;
+	}
     bzero(package, sizeof(package));
     ssize_t bytes = write(socket_fd, "GET_MSGBASE", sizeof("GET_MSGBASE"));
+	if (bytes >= 0)
+	{
+		cout << "GET_MSGBASE request sent: " << bytes << endl;
+	}
+	
     bzero(package, sizeof(package));
 
 	std::ofstream msgbase_file(MBPath, std::ios::trunc);
@@ -98,6 +107,7 @@ void Chat::getMsgBase()
 		else
 		{
 			msgbase_file << temp;
+			msgbase_file << "\n";
 		}
 	}
 	msgbase_file.close();
