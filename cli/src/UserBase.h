@@ -26,7 +26,6 @@ class UserBase
 public:
 	UserBase();
 	~UserBase();
-    User parsingUsrPkg(string& pkg);
     void getUsrBase();
     void showUsers();
 	void addUsers(User& usrStr);
@@ -36,6 +35,7 @@ public:
 	int getUserCount();
 	int getUserId(string& login);
 	string getUserName(int userId);
+	string getUBPath();
 	void delUser(int userId);
 	bool loginCheck(string& login);
 	bool pwdCheck(int userId, string& pwd);

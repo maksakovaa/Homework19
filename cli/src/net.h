@@ -9,7 +9,20 @@
 #define PORT 9999
 #define SERVER "192.168.0.1"
 
-int socket_fd, connection;
-struct sockaddr_in srvaddress, client;
+using std::cout;
+using std::endl;
 
-char package[PACKAGE_LENGTH];
+class net
+{
+private:
+    int socket_fd, connection;
+    struct sockaddr_in srvaddress, client;
+    char package[PACKAGE_LENGTH];
+public:
+    net();
+    ~net();
+    void sendmsg(const char* msg);
+    void getUsrBase();
+    void getMsgBase();
+    User parsingUsrPkg(string& pkg);
+};

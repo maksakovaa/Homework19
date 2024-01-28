@@ -18,60 +18,12 @@ UserBase::~UserBase()
 	delete usrBase;
 }
 
-User UserBase::parsingUsrPkg(string& pkg)
-{
-	size_t pos = 0;
-	int i = 0;
-	string array[2];
-	string delim = "<|>";
-	while ((pos = pkg.find(delim)) != string::npos)
-	{
-		array[i++] = pkg.substr(0,pos);
-		pkg.erase(0, pos + delim.length());
-	}
-	User newUser(array[0], array[1], pkg);
-	return newUser;
-}
-
 void UserBase::getUsrBase()
 {
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    
-	if(socket_fd == -1)
-    {
-        cout << "ERROR: Ошибка создания сокета." << endl;
-        exit(1);
-    }
-    
-	srvaddress.sin_addr.s_addr = inet_addr(SERVER);
-    srvaddress.sin_port = htons(PORT);
-    srvaddress.sin_family = AF_INET;
-
-    connection = connect(socket_fd, (struct sockaddr*)&srvaddress, sizeof(srvaddress));
- 
-    if(connection == -1)
-    {
-        cout << "ERROR: Ошибка подключения к серверу." << endl;
-        exit(1);
-    }
-
-    bzero(package, sizeof(package));
-    ssize_t bytes = write(socket_fd, "GET_USRBASE", sizeof("GET_USRBASE"));
-    bzero(package, sizeof(package));
-
-	while (strncmp("USRBASE_END", package, 11) != 0)
-	{
-		read(socket_fd, package, sizeof(package));
-		if (strncmp("USRBASE_END", package, 11) == 0)
-		{
-			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));
-			break;
-		}	
-		string temp = package;
-		User newUser = parsingUsrPkg(temp);
-		addUsers(newUser);
-	}
-	close(socket_fd);
+	net start;
+	start.sendmsg("GET_USRBASE");
+	start.getUsrBase();
+	start.~net();
 }
 
 void UserBase::showUsers()
@@ -158,4 +110,9 @@ bool UserBase::pwdCheck(int userId, string& pwd)
 	{
 		return false;
 	}
+}
+
+string UserBase::getUBPath()
+{
+    return UBPath;
 }

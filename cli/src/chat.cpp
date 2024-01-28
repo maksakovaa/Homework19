@@ -60,58 +60,10 @@ Chat::~Chat()
 
 void Chat::getMsgBase()
 {
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(socket_fd == -1)
-    {
-        cout << "ERROR: Ошибка создания сокета." << endl;
-        exit(1);
-    }
-    srvaddress.sin_addr.s_addr = inet_addr(SERVER);
-    srvaddress.sin_port = htons(PORT);
-    srvaddress.sin_family = AF_INET;
-    connection = connect(socket_fd, (struct sockaddr*)&srvaddress, sizeof(srvaddress));
-    if(connection == -1)
-    {
-        cout << "ERROR: Ошибка подключения к серверу." << endl;
-        exit(1);
-    }
-	else
-	{
-		cout << "Connected" << endl;
-	}
-    bzero(package, sizeof(package));
-    ssize_t bytes = write(socket_fd, "GET_MSGBASE", sizeof("GET_MSGBASE"));
-	if (bytes >= 0)
-	{
-		cout << "GET_MSGBASE request sent: " << bytes << endl;
-	}
-	
-    bzero(package, sizeof(package));
-
-	std::ofstream msgbase_file(MBPath, std::ios::trunc);
-
-	while (strncmp("MSGBASE_END", package, 11) != 0)
-	{
-		read(socket_fd, package, sizeof(package));
-		
-		if (strncmp("MSGBASE_END", package, 11) == 0)
-		{
-			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));		
-			break;
-		}
-		string temp = package;
-		if(!msgbase_file.is_open())
-		{
-			cout << "ERROR: Ошибка открытия файла!" << endl;
-		}
-		else
-		{
-			msgbase_file << temp;
-			msgbase_file << "\n";
-		}
-	}
-	msgbase_file.close();
-	close(socket_fd);
+	net start;
+	start.sendmsg("GET_MSGBASE");
+	start.getMsgBase();
+	start.~net();
 }
 
 int Chat::getMsgCount()
@@ -201,4 +153,9 @@ void Chat::sendMsg(string msgTo, string msgFrom, string& msg)
 {
 	Message newMsg(msgTo, msgFrom, msg);
 	msgBase->push_back(newMsg);
+}
+
+string Chat::getMBPath()
+{
+	return MBPath;
 }

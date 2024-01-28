@@ -36,6 +36,7 @@ public:
 	void showMain();
 	void showPersonal(string user1, string user2);
 	void sendMsg(string msgTo, string msgFrom, string& msg);
+	string getMBPath();
 private:
 	std::vector<Message>* msgBase;
 #if defined (_WIN32) || defined (_WIN64)
