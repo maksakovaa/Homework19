@@ -1,9 +1,6 @@
 #pragma once
-#include <iostream>
-#include <vector>
 #include <iomanip> 
 #include <new>
-#include <fstream>
 #include "sha256.h"
 #include "net.h"
 
@@ -26,7 +23,6 @@ class UserBase
 public:
 	UserBase();
 	~UserBase();
-    void getUsrBase();
     void showUsers();
 	void addUsers(User& usrStr);
 	void addUsers(string& name, string& login, string& pwd);
@@ -35,7 +31,6 @@ public:
 	int getUserCount();
 	int getUserId(string& login);
 	string getUserName(int userId);
-	string getUBPath();
 	void delUser(int userId);
 	bool loginCheck(string& login);
 	bool pwdCheck(int userId, string& pwd);

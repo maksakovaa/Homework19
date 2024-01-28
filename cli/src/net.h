@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <vector>
+#include <fstream>
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -11,6 +13,7 @@
 
 using std::cout;
 using std::endl;
+using std::string;
 
 class net
 {
@@ -21,8 +24,8 @@ private:
 public:
     net();
     ~net();
-    void sendmsg(const char* msg);
-    void getUsrBase();
+    void sendmsg(char* command);
+    void readmsg();
+    void getUsrBase(std::vector<string>* users);
     void getMsgBase();
-    User parsingUsrPkg(string& pkg);
 };

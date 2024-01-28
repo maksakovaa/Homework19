@@ -1,9 +1,4 @@
 #include "net.h"
-#include "UserBase.h"
-#include "chat.h"
-
-extern UserBase* Users;
-extern Chat* mainChat;
 
 net::net()
 {
@@ -13,6 +8,10 @@ net::net()
     {
         cout << "ERROR: Ошибка создания сокета." << endl;
         exit(1);
+    }
+    else
+    {
+        cout << "Socket created" << endl;
     }
         
     srvaddress.sin_addr.s_addr = inet_addr(SERVER);
@@ -26,41 +25,60 @@ net::net()
         cout << "ERROR: Ошибка подключения к серверу." << endl;
         exit(1);
     }
+    else
+    {
+        cout << "Подключение установлено" << endl;
+    }
 }
 
 net::~net()
 {
     close(socket_fd);
+    cout << "Socket closed" << endl;
 }
 
-void net::sendmsg(const char* msg)
+void net::sendmsg(char* command)
 {
-    ssize_t bytes = write(socket_fd, msg, sizeof(msg));
+    cout << sizeof(command) << endl;
+    cout << sizeof("GET_USRBASE") << endl;
+    ssize_t bytes = write(socket_fd, command, 12);
+    if (bytes >= 0)
+    {
+        cout << command << " request sent" << endl;
+    }
+}
+void net::readmsg()
+{
+    bzero(package, PACKAGE_LENGTH);
+    read(socket_fd, package, sizeof(package));
 }
 
-void net::getUsrBase()
+void net::getUsrBase(std::vector<string>* users)
 {
     while (strncmp("USRBASE_END", package, 11) != 0)
 	{
-		read(socket_fd, package, sizeof(package));
+        readmsg();
 		if (strncmp("USRBASE_END", package, 11) == 0)
 		{
 			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));
 			break;
-		}	
-		string temp = package;
-		User newUser = parsingUsrPkg(temp);
-		Users->addUsers(newUser);
+		}
+        users->push_back(package);
 	}
 }
 
 void net::getMsgBase()
 {
-    std::ofstream msgbase_file(mainChat->getMBPath(), std::ios::trunc);
+    bzero(package, PACKAGE_LENGTH);
+    #if defined (_WIN32) || defined (_WIN64)
+	string MBPath = "msg_base.dat";
+    #elif defined (__linux__)
+    string MBPath = "/var/lib/Chat/msg_base.dat";
+    #endif
+    std::ofstream msgbase_file(MBPath, std::ios::trunc);
     while (strncmp("MSGBASE_END", package, 11) != 0)
 	{
-		read(socket_fd, package, sizeof(package));
-		
+		readmsg();		
 		if (strncmp("MSGBASE_END", package, 11) == 0)
 		{
 			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));		
@@ -78,19 +96,4 @@ void net::getMsgBase()
 		}
 	}
    	msgbase_file.close();
-}
-
-User net::parsingUsrPkg(string& pkg)
-{
-	size_t pos = 0;
-	int i = 0;
-	string array[2];
-	string delim = "<|>";
-	while ((pos = pkg.find(delim)) != string::npos)
-	{
-		array[i++] = pkg.substr(0,pos);
-		pkg.erase(0, pos + delim.length());
-	}
-	User newUser(array[0], array[1], pkg);
-	return newUser;
 }

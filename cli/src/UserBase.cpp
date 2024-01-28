@@ -10,20 +10,30 @@ UserBase::UserBase()
 	{
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
-	getUsrBase();
+	net start;
+	char pkg[] = {"GET_USRBASE"};
+	start.sendmsg(pkg);
+	std::vector<string>* users = new std::vector<string>;
+	start.getUsrBase(users);
+	string delim = "<|>";
+	for (int i = 0; i < users->size(); i++)
+	{
+		int k = 0;
+		string newUser[2];
+		size_t pos = 0;
+		while ((pos = users->at(i).find(delim)) != string::npos)
+		{
+			newUser[k++] = users->at(i).substr(0, pos);
+			users->at(i).erase(0, pos + delim.length());
+		}
+		User temp(newUser[0], newUser[1], users->at(i));
+		addUsers(temp);
+	}
 }
 
 UserBase::~UserBase()
 {
 	delete usrBase;
-}
-
-void UserBase::getUsrBase()
-{
-	net start;
-	start.sendmsg("GET_USRBASE");
-	start.getUsrBase();
-	start.~net();
 }
 
 void UserBase::showUsers()
@@ -110,9 +120,4 @@ bool UserBase::pwdCheck(int userId, string& pwd)
 	{
 		return false;
 	}
-}
-
-string UserBase::getUBPath()
-{
-    return UBPath;
 }

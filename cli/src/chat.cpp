@@ -10,7 +10,10 @@ Chat::Chat()
 	{
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
-	getMsgBase();
+	net start;
+	char pkg[] = {"GET_MSGBASE"};
+	start.sendmsg(pkg);
+	start.getMsgBase();
 	std::ifstream msgbase_file(MBPath);
 	if(msgbase_file.is_open())
 	{
@@ -56,14 +59,6 @@ Chat::~Chat()
 		msgbase_file.close();
 	}
 	delete msgBase;
-}
-
-void Chat::getMsgBase()
-{
-	net start;
-	start.sendmsg("GET_MSGBASE");
-	start.getMsgBase();
-	start.~net();
 }
 
 int Chat::getMsgCount()

@@ -28,7 +28,6 @@ class Chat
 public:
 	Chat();
 	~Chat();
-	void getMsgBase();
 	int getMsgCount();
 	std::vector<int> getMsgToCount(string msgFrom, string msgTo);
 	void emptyMsg();
