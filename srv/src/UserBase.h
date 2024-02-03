@@ -37,6 +37,7 @@ public:
 	void delUser(int userId);
 	bool loginCheck(string& login);
 	bool pwdCheck(int userId, string& pwd);
+	void saveUsrBase();
 
 private:
 	std::vector<User>* usrBase;

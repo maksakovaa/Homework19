@@ -37,7 +37,8 @@ void UserBase::getUserBase()
 			newUser[k++] = users.at(i).substr(0, pos);
 			users.at(i).erase(0, pos + delim.length());
 		}
-		addUsers(newUser[0], newUser[1], users.at(i));
+		User newUserS(newUser[0], newUser[1], users.at(i));
+		addUsers(newUserS);
 	}
 }
 

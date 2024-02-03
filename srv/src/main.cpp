@@ -77,7 +77,8 @@ void regUser()
 		array[i++] = temp.substr(0,pos);
 		temp.erase(0, pos + delim.length());
 	}
-	Users->addUsers(array[0], array[1], temp);
+    User newUser(array[0], array[1], temp);
+	Users->addUsers(newUser);
     cout << "User " << array[0] << " registered" << endl;
 }
 

@@ -39,24 +39,7 @@ UserBase::UserBase()
 
 UserBase::~UserBase()
 {
-	std::ofstream userbase_file(UBPath, std::ios::trunc);
-	if(!userbase_file.is_open())
-	{
-		cout << "Ошибка открытия файла!" << endl;
-	}
-	else
-	{
-		for (int i = 0; i < usrBase->size(); i++)
-		{
-			userbase_file << usrBase->at(i).name;
-			userbase_file << "<|>";
-			userbase_file << usrBase->at(i).login;
-			userbase_file << "<|>";
-			userbase_file << usrBase->at(i).pwd;
-			userbase_file << "\n";
-		}
-		userbase_file.close();
-	}
+	saveUsrBase();
 	delete usrBase;
 }
 
@@ -98,6 +81,7 @@ void UserBase::addUsers(string& name, string& login, string& pwd)
 void UserBase::addUsers(User& newUser)
 {
 	usrBase->push_back(newUser);
+	saveUsrBase();
 }
 
 void UserBase::chgPwd(int userId, string& pwd)
@@ -154,5 +138,27 @@ bool UserBase::pwdCheck(int userId, string& pwd)
 	else
 	{
 		return false;
+	}
+}
+
+void UserBase::saveUsrBase()
+{
+	std::ofstream userbase_file(UBPath, std::ios::trunc);
+	if(!userbase_file.is_open())
+	{
+		cout << "Ошибка открытия файла!" << endl;
+	}
+	else
+	{
+		for (int i = 0; i < usrBase->size(); i++)
+		{
+			userbase_file << usrBase->at(i).name;
+			userbase_file << "<|>";
+			userbase_file << usrBase->at(i).login;
+			userbase_file << "<|>";
+			userbase_file << usrBase->at(i).pwd;
+			userbase_file << "\n";
+		}
+		userbase_file.close();
 	}
 }
