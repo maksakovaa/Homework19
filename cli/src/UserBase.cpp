@@ -46,25 +46,26 @@ User UserBase::splitUsrPkg(string& usrPkg)
 void UserBase::getUserBase()
 {
 	usrBase->clear();
-	net start;
+	net* start = new net;
 	char pkg[] = {"GET_USRBASE"};
-	start.sendReq(pkg, sizeof(pkg)-1);
+	start->sendReq(pkg, sizeof(pkg)-1);
 	std::vector<string> users;
-	start.getUsrBase(users);
+	start->getUsrBase(users);
 	for (int i = 0; i < users.size(); i++)
 	{
 		User newUser = splitUsrPkg(users.at(i));
 		addUsers(newUser);
 	}
+	delete start;
 }
 
 void UserBase::regUsers(string& name, string& login, string& pwd)
 {
-	net start;
+	net* start = new net;
 	string usrPkg = "REG_USER<|>";
 	usrPkg.append(packUsr(name, login, pwd));
-	start.regUser(usrPkg);
-	start.~net();
+	start->regUser(usrPkg);
+	delete start;
 	getUserBase();
 }
 
