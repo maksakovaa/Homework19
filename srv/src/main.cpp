@@ -77,9 +77,8 @@ void regUser()
 		array[i++] = temp.substr(0,pos);
 		temp.erase(0, pos + delim.length());
 	}
-	User newUser(array[0], array[1], temp);
-    Users->addUsers(newUser);
-    cout << "User " << newUser.pwd << " registered" << endl;
+	Users->addUsers(array[0], array[1], temp);
+    cout << "User " << array[0] << " registered" << endl;
     Users->showUsers();
     cout << Users->getUserCount() << endl;
 }
