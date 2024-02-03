@@ -25,21 +25,16 @@ class UserBase
 public:
 	UserBase();
 	~UserBase();
-	void showUsers();
-	string getUser(int userId);
+	string packUser(int userId);
+	User splitUsrPkg(string& usrPkg);
 	void addUsers(User& usrStr);
 	void addUsers(string& name, string& login, string& pwd);
-	void addUsers(const char name[], const char login[], const char pwd[]);
 	void chgPwd(int userId, std::string& pwd);
 	int getUserCount();
-	int getUserId(string& login);
-	string getUserName(int userId);
 	void delUser(int userId);
-	bool loginCheck(string& login);
-	bool pwdCheck(int userId, string& pwd);
 	void saveUsrBase();
-
 private:
+	string delim = "<|>";
 	std::vector<User>* usrBase;
 	SHA256 sha256;
 #if defined (_WIN32) || defined (_WIN64)

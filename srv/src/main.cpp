@@ -10,6 +10,7 @@ using namespace std;
 
 UserBase* Users = new UserBase();
 Chat* mainChat = new Chat();
+string delim = "<|>";
 
 struct sockaddr_in srvaddress, client;
 socklen_t length;
@@ -22,7 +23,7 @@ void sendUsrBase()
     for (int i = 0; i < Users->getUserCount(); i++)
     {
         bzero(package, PACKAGE_LENGTH);
-        strcpy(package, Users->getUser(i).data());
+        strcpy(package, Users->packUser(i).data());
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
         {
@@ -58,7 +59,7 @@ void sendMsgBase()
     for (int i = 0; i < mainChat->getMsgCount(); i++)
     {
         bzero(package, PACKAGE_LENGTH);
-        strcpy(package, mainChat->getMsg(i).data());
+        strcpy(package, mainChat->packMsg(i).data());
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
         {
@@ -79,20 +80,18 @@ void regUser()
 {
     cout << "REG_USER request accepted" << endl;
     string temp = package;
-    string delim = "<|>";
     string array[2];
-    int i = 0;
-    size_t pos = 0;
     temp.erase(0, temp.find(delim) + delim.length());
-    cout << temp << endl;
-    while((pos = temp.find(delim)) != string::npos)
-	{
-		array[i++] = temp.substr(0,pos);
-		temp.erase(0, pos + delim.length());
-	}
-    User newUser(array[0], array[1], temp);
+    User newUser = Users->splitUsrPkg(temp); 
 	Users->addUsers(newUser);
     cout << "User " << array[0] << " registered" << endl;
+}
+
+void regMSG()
+{
+    cout << "SND_MSGBASE request accepted" << endl;
+    string temp = package;
+    mainChat->sendMsg(mainChat->splitMsgPkg(temp));
 }
 
 int main()
@@ -149,7 +148,7 @@ int main()
         }
         else if (strncmp("SND_MSG", package, sizeof("SND_MSG")) == 0)
         {
-            cout << "SND_MSGBASE request accepted" << endl;
+            regMSG();
         }
     }
     close(socket_fd);

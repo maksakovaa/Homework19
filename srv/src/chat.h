@@ -29,14 +29,12 @@ public:
 	Chat();
 	~Chat();
 	int getMsgCount();
-	std::vector<int> getMsgToCount(string msgFrom, string msgTo);
-	void emptyMsg();
-	void printMsg(std::vector<int>& msgIndex);
-	void showMain();
-	void showPersonal(string user1, string user2);
 	void sendMsg(string msgTo, string msgFrom, string& msg);
-	string getMsg(int msgId);
+	void sendMsg(Message newMsg);
+	string packMsg(int msgId);
+	Message splitMsgPkg(string& msgPkg);
 private:
+	string delim = "<|>";
 	std::vector<Message>* msgBase;
 #if defined (_WIN32) || defined (_WIN64)
 	string MBPath = "msg_base.dat";
