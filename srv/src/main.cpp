@@ -80,18 +80,20 @@ void regUser()
 {
     cout << "REG_USER request accepted" << endl;
     string temp = package;
-    string array[2];
     temp.erase(0, temp.find(delim) + delim.length());
     User newUser = Users->splitUsrPkg(temp); 
 	Users->addUsers(newUser);
-    cout << "User " << array[0] << " registered" << endl;
+    cout << "User " << newUser.name << " registered" << endl;
 }
 
 void regMSG()
 {
     cout << "SND_MSGBASE request accepted" << endl;
     string temp = package;
-    mainChat->sendMsg(mainChat->splitMsgPkg(temp));
+    temp.erase(0, temp.find(delim) + delim.length());
+    Message newMsg = mainChat->splitMsgPkg(temp);
+    mainChat->sendMsg(newMsg);
+    cout << "Message " << newMsg.msg << " send" << endl;
 }
 
 int main()

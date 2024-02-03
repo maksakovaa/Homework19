@@ -10,55 +10,46 @@ Chat::Chat()
 	{
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
-	net start;
-	char pkg[] = {"GET_MSGBASE"};
-	start.sendmsg(pkg, sizeof(pkg));
-	start.getMsgBase();
-	std::ifstream msgbase_file(MBPath);
-	if(msgbase_file.is_open())
-	{
-		string s;
-		string delim = "<|>";
-		while (getline(msgbase_file, s))
-		{
-			size_t pos = 0;
-			int i = 0;
-			string array[3];
-			while((pos = s.find(delim)) != string::npos)
-			{
-				array[i++] = s.substr(0,pos);
-				s.erase(0, pos + delim.length());
-			}
-			Message newMsg(array[0], array[1], array[2], s);
-			msgBase->push_back(newMsg);
-		}
-		msgbase_file.close();
-	}
+	getMsgBase();
 }
 
 Chat::~Chat()
 {
-	std::ofstream msgbase_file(MBPath, std::ios::trunc);
-	if(!msgbase_file.is_open())
-	{
-		cout << "Ошибка открытия файла!" << endl;
-	}
-	else
-	{
-		for (int i = 0; i < msgBase->size(); i++)
-		{
-			msgbase_file << msgBase->at(i).msgTo;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msgFrom;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msgDate;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msg;
-			msgbase_file << "\n";
-		}
-		msgbase_file.close();
-	}
+	saveMsgBase();
 	delete msgBase;
+}
+
+string Chat::packMsg(int msgId)
+{
+	string result;
+	result.append(packMsg(msgBase->at(msgId)));
+    return result;
+}
+string Chat::packMsg(Message msgb)
+{
+	string result;
+	result.append(msgb.msgTo);
+	result.append(delim);
+	result.append(msgb.msgFrom);
+	result.append(delim);
+	result.append(msgb.msgDate);
+	result.append(delim);
+	result.append(msgb.msg);
+    return result;
+}
+
+Message Chat::splitMsgPkg(string& msgPkg)
+{
+	size_t pos = 0;
+	int i = 0;
+	string sa[3];
+	while((pos = msgPkg.find(delim)) != string::npos)
+	{
+		sa[i++] = msgPkg.substr(0,pos);
+		msgPkg.erase(0, pos + delim.length());
+	}
+	Message newMsg(sa[0], sa[1], sa[2], msgPkg);
+	return newMsg;
 }
 
 int Chat::getMsgCount()
@@ -146,11 +137,55 @@ void Chat::showPersonal(string user1, string user2)
 
 void Chat::sendMsg(string msgTo, string msgFrom, string& msg)
 {
+	net* online = new net;
 	Message newMsg(msgTo, msgFrom, msg);
-	msgBase->push_back(newMsg);
+	string req = "SND_MSG";
+	req.append(delim);
+	req.append(packMsg(newMsg));
+	online->regMsg(req);
+	delete online;
+	getMsgBase();
 }
 
 string Chat::getMBPath()
 {
 	return MBPath;
+}
+
+void Chat::saveMsgBase()
+{
+	std::ofstream msgbase_file(MBPath, std::ios::trunc);
+	if(!msgbase_file.is_open())
+	{
+		cout << "Ошибка открытия файла!" << endl;
+	}
+	else
+	{
+		for (int i = 0; i < msgBase->size(); i++)
+		{
+			msgbase_file << packMsg(i);
+			msgbase_file << "\n";
+		}
+		msgbase_file.close();
+	}
+}
+
+void Chat::getMsgBase()
+{
+	net* start = new net;
+	char pkg[] = {"GET_MSGBASE"};
+	start->sendReq(pkg, sizeof(pkg)-1);
+	start->getMsgBase();
+	std::ifstream msgbase_file(MBPath);
+	if(msgbase_file.is_open())
+	{
+		string s;
+		while (getline(msgbase_file, s))
+		{
+			Message newMsg = splitMsgPkg(s);
+			msgBase->push_back(newMsg);
+		}
+		msgbase_file.close();
+	}
+	delete start;
 }

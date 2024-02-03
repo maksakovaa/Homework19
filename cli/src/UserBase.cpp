@@ -18,27 +18,43 @@ UserBase::~UserBase()
 	delete usrBase;
 }
 
+string UserBase::packUsr(string& name, string& login, string& pwd)
+{
+	string result;
+	result.append(name);
+	result.append(delim);
+	result.append(login);
+	result.append(delim);
+	result.append(sha256(pwd));
+	return result;
+}
+
+User UserBase::splitUsrPkg(string& usrPkg)
+{
+	size_t pos = 0;
+	int i = 0;
+	string sa[2];
+	while ((pos = usrPkg.find(delim)) != string::npos)
+	{
+		sa[i++] = usrPkg.substr(0, pos);
+		usrPkg.erase(0, pos + delim.length());
+	}
+	User newUser(sa[0], sa[1], usrPkg);
+	return newUser;
+}
+
 void UserBase::getUserBase()
 {
 	usrBase->clear();
 	net start;
 	char pkg[] = {"GET_USRBASE"};
-	start.sendmsg(pkg, sizeof(pkg));
+	start.sendReq(pkg, sizeof(pkg)-1);
 	std::vector<string> users;
 	start.getUsrBase(users);
-	string delim = "<|>";
 	for (int i = 0; i < users.size(); i++)
 	{
-		int k = 0;
-		string newUser[2];
-		size_t pos = 0;
-		while ((pos = users.at(i).find(delim)) != string::npos)
-		{
-			newUser[k++] = users.at(i).substr(0, pos);
-			users.at(i).erase(0, pos + delim.length());
-		}
-		User newUserS(newUser[0], newUser[1], users.at(i));
-		addUsers(newUserS);
+		User newUser = splitUsrPkg(users.at(i));
+		addUsers(newUser);
 	}
 }
 
@@ -46,11 +62,7 @@ void UserBase::regUsers(string& name, string& login, string& pwd)
 {
 	net start;
 	string usrPkg = "REG_USER<|>";
-	usrPkg.append(name);
-	usrPkg.append("<|>");
-	usrPkg.append(login);
-	usrPkg.append("<|>");
-	usrPkg.append(sha256(pwd));
+	usrPkg.append(packUsr(name, login, pwd));
 	start.regUser(usrPkg);
 	start.~net();
 	getUserBase();

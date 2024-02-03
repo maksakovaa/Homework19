@@ -37,7 +37,7 @@ net::~net()
     cout << "Socket closed" << endl;
 }
 
-void net::sendmsg(char* package, int size)
+void net::sendReq(char* package, int size)
 {
     ssize_t bytes = write(socket_fd, package, size);
     if (bytes >= 0)
@@ -75,7 +75,7 @@ void net::regUser(string& usrPkg)
 {
     bzero(package, PACKAGE_LENGTH);
     strcpy(package, usrPkg.data());
-    sendmsg(package, usrPkg.length());
+    sendReq(package, usrPkg.length());
 }
 
 void net::getMsgBase()
@@ -109,4 +109,11 @@ void net::getMsgBase()
 		}
 	}
    	msgbase_file.close();
+}
+
+void net::regMsg(string msgPkg)
+{
+    bzero(package, PACKAGE_LENGTH);
+    strcpy(package, msgPkg.data());
+    sendReq(package, msgPkg.length());
 }

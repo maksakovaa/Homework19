@@ -24,9 +24,10 @@ private:
 public:
     net();
     ~net();
-    void sendmsg(char* package, int size);
+    void sendReq(char* package, int size);
     char* readmsg();
     void getUsrBase(std::vector<string>& users);
     void getMsgBase();
-    void regUser(string&usrPkg);
+    void regUser(string& usrPkg);
+    void regMsg(string msgPkg);
 };
