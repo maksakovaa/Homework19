@@ -26,12 +26,12 @@ void sendUsrBase()
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
         {
-            cout << "USRBASE package " << i << " sent" << endl;
+            cout << "USRBASE package " << i << " sent. Contains: " << package << endl;
         }
         if (i == Users->getUserCount() - 1)
         {
-            ssize_t bytes = write(connection, "USRBASE_END", sizeof("USRBASE_END"));
-            if (bytes >= 0)
+            ssize_t bytes2 = write(connection, "USRBASE_END", sizeof("USRBASE_END"));
+            if (bytes2 >= 0)
             {
                 cout << "USRBASE sended" << endl;
             }

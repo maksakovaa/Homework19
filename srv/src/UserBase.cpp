@@ -30,7 +30,8 @@ UserBase::UserBase()
 				array[i++] = s.substr(0,pos);
 				s.erase(0, pos + delim.length());
 			}
-			addUsers(array[0], array[1], s);
+			User newUser(array[0], array[1], s);
+			addUsers(newUser);
 		}
 		userbase_file.close();
 	}
