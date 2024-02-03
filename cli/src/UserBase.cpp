@@ -10,30 +10,36 @@ UserBase::UserBase()
 	{
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
-	net start;
-	char pkg[] = {"GET_USRBASE"};
-	start.sendmsg(pkg);
-	std::vector<string>* users = new std::vector<string>;
-	start.getUsrBase(users);
-	string delim = "<|>";
-	for (int i = 0; i < users->size(); i++)
-	{
-		int k = 0;
-		string newUser[2];
-		size_t pos = 0;
-		while ((pos = users->at(i).find(delim)) != string::npos)
-		{
-			newUser[k++] = users->at(i).substr(0, pos);
-			users->at(i).erase(0, pos + delim.length());
-		}
-		User temp(newUser[0], newUser[1], users->at(i));
-		addUsers(temp);
-	}
+	getUsrBase();
 }
 
 UserBase::~UserBase()
 {
 	delete usrBase;
+}
+
+void UserBase::getUsrBase()
+{
+	usrBase->clear();
+	net start;
+	char pkg[] = {"GET_USRBASE"};
+	start.sendmsg(pkg, sizeof(pkg));
+	std::vector<string> users;
+	start.getUsrBase(users);
+	string delim = "<|>";
+	for (int i = 0; i < users.size(); i++)
+	{
+		int k = 0;
+		string newUser[2];
+		size_t pos = 0;
+		while ((pos = users.at(i).find(delim)) != string::npos)
+		{
+			newUser[k++] = users.at(i).substr(0, pos);
+			users.at(i).erase(0, pos + delim.length());
+		}
+		User temp(newUser[0], newUser[1], users.at(i));
+		addUsers(temp);
+	}
 }
 
 void UserBase::showUsers()
@@ -63,6 +69,22 @@ void UserBase::addUsers(string& name, string& login, string& pwd)
 void UserBase::addUsers(User& newUser)
 {
 	usrBase->push_back(newUser);
+}
+
+void UserBase::regUsers(string& name, string& login, string& pwd)
+{
+	net start;
+	char pkg[] = {"REG_USER"};
+	start.sendmsg(pkg, sizeof(pkg));
+	string usrPkg = "";
+	usrPkg.append(name);
+	usrPkg.append("<|>");
+	usrPkg.append(login);
+	usrPkg.append("<|>");
+	usrPkg.append(sha256(pwd));
+	start.regUser(usrPkg);
+	start.~net();
+	getUsrBase();
 }
 
 void UserBase::chgPwd(int userId, string& pwd)

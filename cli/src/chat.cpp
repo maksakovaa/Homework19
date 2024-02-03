@@ -12,7 +12,7 @@ Chat::Chat()
 	}
 	net start;
 	char pkg[] = {"GET_MSGBASE"};
-	start.sendmsg(pkg);
+	start.sendmsg(pkg, sizeof(pkg));
 	start.getMsgBase();
 	std::ifstream msgbase_file(MBPath);
 	if(msgbase_file.is_open())

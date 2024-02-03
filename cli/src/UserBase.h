@@ -27,6 +27,7 @@ public:
 	void addUsers(User& usrStr);
 	void addUsers(string& name, string& login, string& pwd);
 	void addUsers(const char name[], const char login[], const char pwd[]);
+	void regUsers(string& name, string& login, string& pwd);
 	void chgPwd(int userId, std::string& pwd);
 	int getUserCount();
 	int getUserId(string& login);
@@ -34,7 +35,7 @@ public:
 	void delUser(int userId);
 	bool loginCheck(string& login);
 	bool pwdCheck(int userId, string& pwd);
-
+	void getUsrBase();
 private:
 	std::vector<User>* usrBase;
 	SHA256 sha256;

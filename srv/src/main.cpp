@@ -60,12 +60,13 @@ void sendMsgBase()
     }
 }
 
-void regUser()
+void regUser(char* package)
 {
-    cout << "REG_USER request accepted" << endl;
-    bzero(package, PACKAGE_LENGTH);
-    read(connection, package, sizeof(package));
+//    cout << "REG_USER request accepted" << endl;
+//    read(connection, package, sizeof(package));
+//    cout << package[0] << "package size: " << sizeof(package) << endl;
     string temp = package;
+    cout << temp << endl;
     string delim = "<|>";
     string array[2];
     int i = 0;
@@ -77,6 +78,7 @@ void regUser()
 	}
 	User newUser(array[0], array[1], temp);
     Users->addUsers(newUser);
+    cout << "User " << newUser.name << " registered" << endl;
 }
 
 int main()
@@ -100,7 +102,7 @@ int main()
     cout << "Сервер приложения Chat запущен." << endl;
     while (1)
     {
-        connect_status = listen(socket_fd, 10);
+        connect_status = listen(socket_fd, 5);
         if (connect_status == -1)
         {
             cout << "ERROR: Ошибка при постановке на приём данных." << endl;
@@ -119,27 +121,23 @@ int main()
         }
         bzero(package, PACKAGE_LENGTH);
         read(connection, package, sizeof(package));
-        if (strncmp("CRC_USRBASE", package, 12) == 0)
-        {
-            cout << "CRC_USRBASE request accepted" << endl;
-        }     
-        else if (strncmp("GET_USRBASE", package, 12) == 0)
+        if (strncmp("GET_USRBASE", package, sizeof("GET_USRBASE")) == 0)
         {
             sendUsrBase();
         }
-        else if (strncmp("CRC_MSGBASE", package, 12) == 0)
-        {
-            cout << "CRC_MSGBASE request accepted" << endl;
-        }
-        else if (strncmp("GET_MSGBASE", package, 12) == 0)
+        else if (strncmp("GET_MSGBASE", package, sizeof("GET_MSGBASE")) == 0)
         {
             sendMsgBase();
         }
-        else if (strncmp("REG_USER", package, 8) == 0)
+        else if (strncmp("REG_USER", package, sizeof("REG_USER")) == 0)
         {
-            regUser();   
+            cout << "REG_USER request accepted" << endl;
+            bzero(package, PACKAGE_LENGTH);
+            read(connection, package, sizeof(package));
+            cout << package[0] << "package size: " << sizeof(package) << endl;
+            regUser(package);   
         }
-        else if (strncmp("SND_MSG", package, 7) == 0)
+        else if (strncmp("SND_MSG", package, sizeof("SND_MSG")) == 0)
         {
             cout << "SND_MSGBASE request accepted" << endl;
         }

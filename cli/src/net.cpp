@@ -37,14 +37,12 @@ net::~net()
     cout << "Socket closed" << endl;
 }
 
-void net::sendmsg(char* command)
+void net::sendmsg(char* package, int size)
 {
-    cout << sizeof(command) << endl;
-    cout << sizeof("GET_USRBASE") << endl;
-    ssize_t bytes = write(socket_fd, command, 12);
+    ssize_t bytes = write(socket_fd, package, size);
     if (bytes >= 0)
     {
-        cout << command << " request sent" << endl;
+        cout << package << " request sent. Size: " << size << endl;
     }
 }
 void net::readmsg()
@@ -53,7 +51,7 @@ void net::readmsg()
     read(socket_fd, package, sizeof(package));
 }
 
-void net::getUsrBase(std::vector<string>* users)
+void net::getUsrBase(std::vector<string> users)
 {
     while (strncmp("USRBASE_END", package, 11) != 0)
 	{
@@ -63,7 +61,7 @@ void net::getUsrBase(std::vector<string>* users)
 			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));
 			break;
 		}
-        users->push_back(package);
+        users.push_back(package);
 	}
 }
 
@@ -96,4 +94,11 @@ void net::getMsgBase()
 		}
 	}
    	msgbase_file.close();
+}
+
+void net::regUser(string& usrPkg)
+{
+    bzero(package, PACKAGE_LENGTH);
+    strcpy(package, usrPkg.data());
+    sendmsg(package, usrPkg.length());
 }

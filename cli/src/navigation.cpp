@@ -67,7 +67,7 @@ void menuRegUser()
 	{
 		getline(cin, pwd);
 	}
-	Users->addUsers(name, login, pwd);
+	Users->regUsers(name, login, pwd);
 	cout << "Пользователь " << name << " успешно зарегистрирован. \n 1 - Главное меню 2 - Авторизация" << endl;
 	cin >> choice;
 	while (choice != 1 && choice != 2)
