@@ -96,6 +96,27 @@ void regMSG()
     cout << "Message " << newMsg.msg << " send" << endl;
 }
 
+void delUsr()
+{
+    cout << "DEL_USER request accepted" << endl;
+    string temp = package;
+    temp.erase(0, temp.find(delim) + delim.length());
+    int userId = stoi(temp);
+    Users->delUser(userId);
+    cout << "User with ID " << userId << " deleted." << endl;
+}
+
+void chgPwd()
+{
+    cout << "CHG_PWD request accepted" << endl;
+    string temp = package;
+    temp.erase(0, temp.find(delim) + delim.length());
+    int userId = stoi(temp.substr(0, temp.find(delim)));
+    string pwd = temp.erase(0, temp.find(delim) + delim.length());
+    Users->chgPwd(userId, pwd);
+    cout << "Password for user with ID " << userId << " changed" << endl;
+}
+
 int main()
 {
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -152,6 +173,15 @@ int main()
         {
             regMSG();
         }
+        else if (strncmp("DEL_USER", package, sizeof("DEL_USER")-1) == 0)
+        {
+            delUsr();
+        }
+        else if (strncmp("CHG_PWD", package, sizeof("CHG_PWD")-1) == 0)
+        {
+            chgPwd();
+        }
+        
     }
     close(socket_fd);
     delete mainChat;

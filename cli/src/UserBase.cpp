@@ -100,7 +100,15 @@ void UserBase::addUsers(User& newUser)
 
 void UserBase::chgPwd(int userId, string& pwd)
 {
-	usrBase->at(userId).pwd = sha256(pwd);
+	net* start = new net;
+	string usrPkg = "CHG_PWD";
+	usrPkg.append(delim);
+	usrPkg.append(std::to_string(userId));
+	usrPkg.append(delim);
+	usrPkg.append(sha256(pwd));
+	start->sendReq(usrPkg.data(), usrPkg.size());
+	delete start;
+	getUserBase();
 }
 
 int UserBase::getUserCount()
@@ -127,7 +135,13 @@ string UserBase::getUserName(int userId)
 
 void UserBase::delUser(int userId)
 {
-	usrBase->erase(usrBase->begin() + userId);
+	net* start = new net;
+	string usrPkg = "DEL_USER";
+	usrPkg.append(delim);
+	usrPkg.append(std::to_string(userId));
+	start->sendReq(usrPkg.data(), usrPkg.size());
+	delete start;
+	getUserBase();
 }
 
 bool UserBase::loginCheck(string& login)

@@ -95,13 +95,14 @@ void UserBase::saveUsrBase()
 	}
 }
 
-
 void UserBase::chgPwd(int userId, string& pwd)
 {
-	usrBase->at(userId).pwd = sha256(pwd);
+	usrBase->at(userId).pwd = pwd;
+	saveUsrBase();
 }
 
 void UserBase::delUser(int userId)
 {
 	usrBase->erase(usrBase->begin() + userId);
+	saveUsrBase();
 }
