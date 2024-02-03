@@ -48,6 +48,10 @@ void sendMsgBase()
         bzero(package, PACKAGE_LENGTH);
         strcpy(package, "MSGBASE_EMPTY");
         ssize_t bytes = write(connection, package, sizeof(package));
+        if (bytes >= 0)
+        {
+            cout << "MSGBASE EMPTY" << endl;
+        }
         return;
     }
     
@@ -110,7 +114,7 @@ int main()
         exit(1);
     }
     cout << "Сервер приложения Chat запущен." << endl;
-    while (1)
+    while (true)
     {
         connect_status = listen(socket_fd, 20);
         if (connect_status == -1)

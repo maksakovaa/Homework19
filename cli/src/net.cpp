@@ -45,6 +45,7 @@ void net::sendmsg(char* package, int size)
         cout << package << " request sent. Size: " << size << endl;
     }
 }
+
 char* net::readmsg()
 {
     bzero(package, PACKAGE_LENGTH);
