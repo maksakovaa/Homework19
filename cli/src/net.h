@@ -26,7 +26,7 @@ public:
     ~net();
     void sendmsg(char* package, int size);
     void readmsg();
-    void getUsrBase(std::vector<string> users);
+    void getUsrBase(std::vector<string>& users);
     void getMsgBase();
     void regUser(string&usrPkg);
 };

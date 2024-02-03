@@ -51,18 +51,27 @@ void net::readmsg()
     read(socket_fd, package, sizeof(package));
 }
 
-void net::getUsrBase(std::vector<string> users)
+void net::getUsrBase(std::vector<string>& users)
 {
-    while (strncmp("USRBASE_END", package, 11) != 0)
+    users.clear();
+    cout << "net getUsrBase start" << endl;
+    bzero(package, PACKAGE_LENGTH);
+    while (strncmp("USRBASE_END", package, 12) != 0)
 	{
         readmsg();
-		if (strncmp("USRBASE_END", package, 11) == 0)
-		{
-			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));
-			break;
-		}
-        users.push_back(package);
+        if (strncmp("USRBASE_END", package, 12) != 0 && package != 0)
+    	{
+            users.push_back(package);
+            cout << users.size() << package << endl;
+	    }
 	}
+    if (strncmp("USRBASE_END", package, 12) == 0)
+    {
+        cout << "USRBASE_END" << endl;
+        cout << "net getUsrBase complete" << endl;
+        return;
+    }
+
 }
 
 void net::getMsgBase()
@@ -77,9 +86,9 @@ void net::getMsgBase()
     while (strncmp("MSGBASE_END", package, 11) != 0)
 	{
 		readmsg();		
-		if (strncmp("MSGBASE_END", package, 11) == 0)
+		if (strncmp("MSGBASE_END", package, sizeof("MSGBASE_END")) == 0)
 		{
-			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));		
+//			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));		
 			break;
 		}
 		string temp = package;

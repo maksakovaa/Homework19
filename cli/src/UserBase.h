@@ -35,7 +35,7 @@ public:
 	void delUser(int userId);
 	bool loginCheck(string& login);
 	bool pwdCheck(int userId, string& pwd);
-	void getUsrBase();
+	void getUserBase();
 private:
 	std::vector<User>* usrBase;
 	SHA256 sha256;

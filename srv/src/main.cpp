@@ -21,6 +21,7 @@ void sendUsrBase()
     cout << "GET_USRBASE request accepted" << endl;
     for (int i = 0; i < Users->getUserCount(); i++)
     {
+        bzero(package, PACKAGE_LENGTH);
         strcpy(package, Users->getUser(i).data());
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
@@ -43,6 +44,7 @@ void sendMsgBase()
     cout << "GET_MSGBASE request accepted" << endl;
     for (int i = 0; i < mainChat->getMsgCount(); i++)
     {
+        bzero(package, PACKAGE_LENGTH);
         strcpy(package, mainChat->getMsg(i).data());
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
@@ -60,17 +62,16 @@ void sendMsgBase()
     }
 }
 
-void regUser(char* package)
+void regUser()
 {
-//    cout << "REG_USER request accepted" << endl;
-//    read(connection, package, sizeof(package));
-//    cout << package[0] << "package size: " << sizeof(package) << endl;
+    cout << "REG_USER request accepted" << endl;
     string temp = package;
-    cout << temp << endl;
     string delim = "<|>";
     string array[2];
     int i = 0;
     size_t pos = 0;
+    temp.erase(0, temp.find(delim) + delim.length());
+    cout << temp << endl;
     while((pos = temp.find(delim)) != string::npos)
 	{
 		array[i++] = temp.substr(0,pos);
@@ -78,7 +79,9 @@ void regUser(char* package)
 	}
 	User newUser(array[0], array[1], temp);
     Users->addUsers(newUser);
-    cout << "User " << newUser.name << " registered" << endl;
+    cout << "User " << newUser.pwd << " registered" << endl;
+    Users->showUsers();
+    cout << Users->getUserCount() << endl;
 }
 
 int main()
@@ -129,13 +132,9 @@ int main()
         {
             sendMsgBase();
         }
-        else if (strncmp("REG_USER", package, sizeof("REG_USER")) == 0)
+        else if (strncmp("REG_USER", package, sizeof("REG_USER")-1) == 0)
         {
-            cout << "REG_USER request accepted" << endl;
-            bzero(package, PACKAGE_LENGTH);
-            read(connection, package, sizeof(package));
-            cout << package[0] << "package size: " << sizeof(package) << endl;
-            regUser(package);   
+            regUser();   
         }
         else if (strncmp("SND_MSG", package, sizeof("SND_MSG")) == 0)
         {

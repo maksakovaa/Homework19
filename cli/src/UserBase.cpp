@@ -10,7 +10,7 @@ UserBase::UserBase()
 	{
 		cout << "ERROR: caught bad_alloc: " << ex.what() << endl;
 	}
-	getUsrBase();
+	getUserBase();
 }
 
 UserBase::~UserBase()
@@ -18,7 +18,7 @@ UserBase::~UserBase()
 	delete usrBase;
 }
 
-void UserBase::getUsrBase()
+void UserBase::getUserBase()
 {
 	usrBase->clear();
 	net start;
@@ -37,8 +37,7 @@ void UserBase::getUsrBase()
 			newUser[k++] = users.at(i).substr(0, pos);
 			users.at(i).erase(0, pos + delim.length());
 		}
-		User temp(newUser[0], newUser[1], users.at(i));
-		addUsers(temp);
+		addUsers(newUser[0], newUser[1], users.at(i));
 	}
 }
 
@@ -74,9 +73,7 @@ void UserBase::addUsers(User& newUser)
 void UserBase::regUsers(string& name, string& login, string& pwd)
 {
 	net start;
-	char pkg[] = {"REG_USER"};
-	start.sendmsg(pkg, sizeof(pkg));
-	string usrPkg = "";
+	string usrPkg = "REG_USER<|>";
 	usrPkg.append(name);
 	usrPkg.append("<|>");
 	usrPkg.append(login);
@@ -84,7 +81,7 @@ void UserBase::regUsers(string& name, string& login, string& pwd)
 	usrPkg.append(sha256(pwd));
 	start.regUser(usrPkg);
 	start.~net();
-	getUsrBase();
+	getUserBase();
 }
 
 void UserBase::chgPwd(int userId, string& pwd)
