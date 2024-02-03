@@ -79,8 +79,6 @@ void regUser()
 	}
 	Users->addUsers(array[0], array[1], temp);
     cout << "User " << array[0] << " registered" << endl;
-    Users->showUsers();
-    cout << Users->getUserCount() << endl;
 }
 
 int main()
@@ -104,7 +102,7 @@ int main()
     cout << "Сервер приложения Chat запущен." << endl;
     while (1)
     {
-        connect_status = listen(socket_fd, 5);
+        connect_status = listen(socket_fd, 20);
         if (connect_status == -1)
         {
             cout << "ERROR: Ошибка при постановке на приём данных." << endl;

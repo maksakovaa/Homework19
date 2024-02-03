@@ -45,10 +45,11 @@ void net::sendmsg(char* package, int size)
         cout << package << " request sent. Size: " << size << endl;
     }
 }
-void net::readmsg()
+char* net::readmsg()
 {
     bzero(package, PACKAGE_LENGTH);
     read(socket_fd, package, sizeof(package));
+    return package;
 }
 
 void net::getUsrBase(std::vector<string>& users)
@@ -56,22 +57,24 @@ void net::getUsrBase(std::vector<string>& users)
     users.clear();
     cout << "net getUsrBase start" << endl;
     bzero(package, PACKAGE_LENGTH);
-    while (strncmp("USRBASE_END", package, 12) != 0)
+    while (strncmp("USRBASE_END", readmsg(), sizeof("USRBASE_END")) != 0)
 	{
-        readmsg();
-        if (strncmp("USRBASE_END", package, 12) != 0 && package != 0)
-    	{
-            users.push_back(package);
-            cout << users.size() << package << endl;
-	    }
+        users.push_back(package);
+        cout << users.size() << package << endl;
 	}
-    if (strncmp("USRBASE_END", package, 12) == 0)
+    if (strncmp("USRBASE_END", package, sizeof("USRBASE_END")) == 0)
     {
         cout << "USRBASE_END" << endl;
         cout << "net getUsrBase complete" << endl;
         return;
     }
+}
 
+void net::regUser(string& usrPkg)
+{
+    bzero(package, PACKAGE_LENGTH);
+    strcpy(package, usrPkg.data());
+    sendmsg(package, usrPkg.length());
 }
 
 void net::getMsgBase()
@@ -83,12 +86,10 @@ void net::getMsgBase()
     string MBPath = "/var/lib/Chat/msg_base.dat";
     #endif
     std::ofstream msgbase_file(MBPath, std::ios::trunc);
-    while (strncmp("MSGBASE_END", package, 11) != 0)
+    while (strncmp("MSGBASE_END", readmsg(), 11) != 0)
 	{
-		readmsg();		
 		if (strncmp("MSGBASE_END", package, sizeof("MSGBASE_END")) == 0)
 		{
-//			ssize_t bytes = write(socket_fd, "DISCONNECT", sizeof("DISCONNECT"));		
 			break;
 		}
 		string temp = package;
@@ -103,11 +104,4 @@ void net::getMsgBase()
 		}
 	}
    	msgbase_file.close();
-}
-
-void net::regUser(string& usrPkg)
-{
-    bzero(package, PACKAGE_LENGTH);
-    strcpy(package, usrPkg.data());
-    sendmsg(package, usrPkg.length());
 }

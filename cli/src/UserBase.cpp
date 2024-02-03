@@ -41,6 +41,20 @@ void UserBase::getUserBase()
 	}
 }
 
+void UserBase::regUsers(string& name, string& login, string& pwd)
+{
+	net start;
+	string usrPkg = "REG_USER<|>";
+	usrPkg.append(name);
+	usrPkg.append("<|>");
+	usrPkg.append(login);
+	usrPkg.append("<|>");
+	usrPkg.append(sha256(pwd));
+	start.regUser(usrPkg);
+	start.~net();
+	getUserBase();
+}
+
 void UserBase::showUsers()
 {
 	cout << setw(17) << "ID пользовател¤" << setw(20) << "Имя пользователя" << setw(10) << "Логин" << endl;
@@ -68,20 +82,6 @@ void UserBase::addUsers(string& name, string& login, string& pwd)
 void UserBase::addUsers(User& newUser)
 {
 	usrBase->push_back(newUser);
-}
-
-void UserBase::regUsers(string& name, string& login, string& pwd)
-{
-	net start;
-	string usrPkg = "REG_USER<|>";
-	usrPkg.append(name);
-	usrPkg.append("<|>");
-	usrPkg.append(login);
-	usrPkg.append("<|>");
-	usrPkg.append(sha256(pwd));
-	start.regUser(usrPkg);
-	start.~net();
-	getUserBase();
 }
 
 void UserBase::chgPwd(int userId, string& pwd)
