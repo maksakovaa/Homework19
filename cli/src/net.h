@@ -27,7 +27,7 @@ public:
     void sendReq(char* package, int size);
     char* readmsg();
     void getUsrBase(std::vector<string>& users);
-    void getMsgBase();
+    void getMsgBase(std::vector<string>* sMsg);
     void regUser(string& usrPkg);
     void regMsg(string msgPkg);
 };

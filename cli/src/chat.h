@@ -29,7 +29,7 @@ public:
 	Chat();
 	~Chat();
 	string packMsg(int msgId);
-	string packMsg(Message msgb);
+	string packMsg(Message& msgb);
 	Message splitMsgPkg(string& msgPkg);
 	int getMsgCount();
 	std::vector<int> getMsgToCount(string msgFrom, string msgTo);

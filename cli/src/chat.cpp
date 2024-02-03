@@ -15,7 +15,6 @@ Chat::Chat()
 
 Chat::~Chat()
 {
-	saveMsgBase();
 	delete msgBase;
 }
 
@@ -25,7 +24,7 @@ string Chat::packMsg(int msgId)
 	result.append(packMsg(msgBase->at(msgId)));
     return result;
 }
-string Chat::packMsg(Message msgb)
+string Chat::packMsg(Message& msgb)
 {
 	string result;
 	result.append(msgb.msgTo);
@@ -175,17 +174,12 @@ void Chat::getMsgBase()
 	net* start = new net;
 	char pkg[] = {"GET_MSGBASE"};
 	start->sendReq(pkg, sizeof(pkg)-1);
-	start->getMsgBase();
-	std::ifstream msgbase_file(MBPath);
-	if(msgbase_file.is_open())
+	std::vector<string>* sMessage = new std::vector<string>;
+	start->getMsgBase(sMessage);
+	msgBase->clear();
+	for (int i = 0; i < sMessage->size(); i++)
 	{
-		string s;
-		while (getline(msgbase_file, s))
-		{
-			Message newMsg = splitMsgPkg(s);
-			msgBase->push_back(newMsg);
-		}
-		msgbase_file.close();
+		msgBase->push_back(splitMsgPkg(sMessage->at(i)));
 	}
-	delete start;
+	delete start, sMessage;
 }

@@ -78,15 +78,8 @@ void net::regUser(string& usrPkg)
     sendReq(package, usrPkg.length());
 }
 
-void net::getMsgBase()
+void net::getMsgBase(std::vector<string>* sMsg)
 {
-    bzero(package, PACKAGE_LENGTH);
-    #if defined (_WIN32) || defined (_WIN64)
-	string MBPath = "msg_base.dat";
-    #elif defined (__linux__)
-    string MBPath = "/var/lib/Chat/msg_base.dat";
-    #endif
-    std::ofstream msgbase_file(MBPath, std::ios::trunc);
     while (strncmp("MSGBASE_END", readmsg(), 11) != 0)
 	{
         if (strncmp("MSGBASE_EMPTY", package, sizeof("MSGBASE_EMPTY")) == 0)
@@ -98,17 +91,8 @@ void net::getMsgBase()
 			break;
 		}
 		string temp = package;
-		if(!msgbase_file.is_open())
-		{
-			cout << "ERROR: Ошибка открытия файла!" << endl;
-		}
-		else
-		{
-			msgbase_file << temp;
-			msgbase_file << "\n";
-		}
+        sMsg->push_back(package);
 	}
-   	msgbase_file.close();
 }
 
 void net::regMsg(string msgPkg)
