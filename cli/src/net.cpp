@@ -9,11 +9,7 @@ net::net()
         cout << "ERROR: Ошибка создания сокета." << endl;
         exit(1);
     }
-    else
-    {
-        cout << "Socket created" << endl;
-    }
-        
+       
     srvaddress.sin_addr.s_addr = inet_addr(SERVER);
     srvaddress.sin_port = htons(PORT);
     srvaddress.sin_family = AF_INET;
@@ -25,25 +21,16 @@ net::net()
         cout << "ERROR: Ошибка подключения к серверу." << endl;
         exit(1);
     }
-    else
-    {
-        cout << "Подключение установлено" << endl;
-    }
 }
 
 net::~net()
 {
     close(socket_fd);
-    cout << "Socket closed" << endl;
 }
 
 void net::sendReq(char* package, int size)
 {
     ssize_t bytes = write(socket_fd, package, size);
-    if (bytes >= 0)
-    {
-        cout << package << " request sent. Size: " << size << endl;
-    }
 }
 
 char* net::readmsg()
@@ -56,17 +43,13 @@ char* net::readmsg()
 void net::getUsrBase(std::vector<string>& users)
 {
     users.clear();
-    cout << "net getUsrBase start" << endl;
     bzero(package, PACKAGE_LENGTH);
     while (strncmp("USRBASE_END", readmsg(), sizeof("USRBASE_END")) != 0)
 	{
         users.push_back(package);
-        cout << users.size() << package << endl;
 	}
     if (strncmp("USRBASE_END", package, sizeof("USRBASE_END")) == 0)
     {
-        cout << "USRBASE_END" << endl;
-        cout << "net getUsrBase complete" << endl;
         return;
     }
 }

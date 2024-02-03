@@ -4,7 +4,7 @@
 #include <iomanip> 
 #include <new>
 #include <fstream>
-#include "sha256.h"
+#include "sha256d.h"
 
 using std::cout;
 using std::string;
@@ -40,6 +40,6 @@ private:
 #if defined (_WIN32) || defined (_WIN64)
 	string UBPath = "users.dat";
 #elif defined (__linux__)
-	string UBPath = "/var/lib/Chat/users.dat";
+	string UBPath = "/var/lib/chatd/users.dat";
 #endif
 };

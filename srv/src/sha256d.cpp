@@ -1,4 +1,4 @@
-#include "sha256.h"
+#include "sha256d.h"
 
 #ifndef _MSC_VER
 #include <endian.h>

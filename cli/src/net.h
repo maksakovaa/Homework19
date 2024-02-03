@@ -9,7 +9,7 @@
   
 #define PACKAGE_LENGTH 1024
 #define PORT 9999
-#define SERVER "192.168.0.1"
+#define SERVER "127.0.0.1"
 
 using std::cout;
 using std::endl;

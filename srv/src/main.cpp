@@ -1,4 +1,4 @@
-#include "chat.h"
+#include "chatd.h"
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -27,7 +27,7 @@ void sendUsrBase()
         ssize_t bytes = write(connection, package, sizeof(package));
         if (bytes >= 0)
         {
-            cout << "USRBASE package " << i << " sent. Contains: " << package << endl;
+            cout << "USRBASE package " << i << " sent." << endl;
         }
         if (i == Users->getUserCount() - 1)
         {
@@ -88,7 +88,7 @@ void regUser()
 
 void regMSG()
 {
-    cout << "SND_MSGBASE request accepted" << endl;
+    cout << "SND_MSG request accepted" << endl;
     string temp = package;
     temp.erase(0, temp.find(delim) + delim.length());
     Message newMsg = mainChat->splitMsgPkg(temp);
@@ -156,5 +156,5 @@ int main()
     close(socket_fd);
     delete mainChat;
     delete Users;
-    return 0; 
+    return 0;
 }

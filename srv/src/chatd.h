@@ -1,5 +1,5 @@
 #pragma once
-#include "UserBase.h"
+#include "UserBased.h"
 #include <ctime>
 
 struct Message
@@ -29,16 +29,16 @@ public:
 	Chat();
 	~Chat();
 	int getMsgCount();
-	void sendMsg(string msgTo, string msgFrom, string& msg);
 	void sendMsg(Message newMsg);
 	string packMsg(int msgId);
 	Message splitMsgPkg(string& msgPkg);
+	void saveMsgBase();
 private:
 	string delim = "<|>";
 	std::vector<Message>* msgBase;
 #if defined (_WIN32) || defined (_WIN64)
 	string MBPath = "msg_base.dat";
 #elif defined (__linux__)
-string MBPath = "/var/lib/Chat/msg_base.dat";
+string MBPath = "/var/lib/chatd/msg_base.dat";
 #endif
 };

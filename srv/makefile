@@ -1,11 +1,11 @@
 SRC = src/main.cpp
 TARGET = chatd
-SHALIB = sha256
-CHLIB = chat
-UBLIB = UserBase
+SHALIB = sha256d
+CHLIB = chatd
+UBLIB = UserBased
 BINPATH = /usr/local/bin
 LIBPATH = /usr/lib
-DATAPATH = /var/lib/Chat
+DATAPATH = /var/lib/chatd
 #MBASE = msg_base.dat
 #UBASE = users.dat
 

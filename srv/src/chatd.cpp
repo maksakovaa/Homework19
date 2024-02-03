@@ -1,4 +1,4 @@
-#include "chat.h"
+#include "chatd.h"
 
 Chat::Chat()
 {
@@ -26,21 +26,7 @@ Chat::~Chat()
 {
 	if (getMsgCount() > 0)
 	{
-		std::ofstream msgbase_file(MBPath, std::ios::trunc);
-		if(!msgbase_file.is_open())
-		{
-			cout << "Ошибка открытия файла!" << endl;
-		}
-		else
-		{
-			for (int i = 0; i < msgBase->size(); i++)
-			{
-				string result = packMsg(i);
-				msgbase_file << result;
-				msgbase_file << "\n";
-			}
-			msgbase_file.close();
-		}
+		saveMsgBase();
 	}
 	delete msgBase;
 }
@@ -50,15 +36,10 @@ int Chat::getMsgCount()
 	return msgBase->size();
 }
 
-void Chat::sendMsg(string msgTo, string msgFrom, string& msg)
-{
-	Message newMsg(msgTo, msgFrom, msg);
-	msgBase->push_back(newMsg);
-}
-
 void Chat::sendMsg(Message newMsg)
 {
-	msgBase->push_back(newMsg);	
+	msgBase->push_back(newMsg);
+	saveMsgBase();
 }
 
 string Chat::packMsg(int msgId)
@@ -86,4 +67,22 @@ Message Chat::splitMsgPkg(string& msgPkg)
 	}
 	Message newMsg(sa[0], sa[1], sa[2], msgPkg);
 	return newMsg;
+}
+
+void Chat::saveMsgBase()
+{
+	std::ofstream msgbase_file(MBPath, std::ios::trunc);
+	if(!msgbase_file.is_open())
+	{
+		cout << "Ошибка открытия файла!" << endl;
+	}
+	else
+	{
+		for (int i = 0; i < msgBase->size(); i++)
+		{
+			msgbase_file << packMsg(i);
+			msgbase_file << "\n";
+		}
+		msgbase_file.close();
+	}
 }
