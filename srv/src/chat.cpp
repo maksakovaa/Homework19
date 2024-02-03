@@ -34,25 +34,28 @@ Chat::Chat()
 
 Chat::~Chat()
 {
-	std::ofstream msgbase_file(MBPath, std::ios::trunc);
-	if(!msgbase_file.is_open())
+	if (getMsgCount() > 0)
 	{
-		cout << "Ошибка открытия файла!" << endl;
-	}
-	else
-	{
-		for (int i = 0; i < msgBase->size(); i++)
+		std::ofstream msgbase_file(MBPath, std::ios::trunc);
+		if(!msgbase_file.is_open())
 		{
-			msgbase_file << msgBase->at(i).msgTo;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msgFrom;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msgDate;
-			msgbase_file << "<|>";
-			msgbase_file << msgBase->at(i).msg;
-			msgbase_file << "\n";
+			cout << "Ошибка открытия файла!" << endl;
 		}
-		msgbase_file.close();
+		else
+		{
+			for (int i = 0; i < msgBase->size(); i++)
+			{
+				msgbase_file << msgBase->at(i).msgTo;
+				msgbase_file << "<|>";
+				msgbase_file << msgBase->at(i).msgFrom;
+				msgbase_file << "<|>";
+				msgbase_file << msgBase->at(i).msgDate;
+				msgbase_file << "<|>";
+				msgbase_file << msgBase->at(i).msg;
+				msgbase_file << "\n";
+			}
+			msgbase_file.close();
+		}
 	}
 	delete msgBase;
 }

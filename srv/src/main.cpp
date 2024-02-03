@@ -42,6 +42,15 @@ void sendUsrBase()
 void sendMsgBase()
 {
     cout << "GET_MSGBASE request accepted" << endl;
+    
+    if (mainChat->getMsgCount() == 0)
+    {
+        bzero(package, PACKAGE_LENGTH);
+        strcpy(package, "MSGBASE_EMPTY");
+        ssize_t bytes = write(connection, package, sizeof(package));
+        return;
+    }
+    
     for (int i = 0; i < mainChat->getMsgCount(); i++)
     {
         bzero(package, PACKAGE_LENGTH);

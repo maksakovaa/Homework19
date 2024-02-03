@@ -88,6 +88,10 @@ void net::getMsgBase()
     std::ofstream msgbase_file(MBPath, std::ios::trunc);
     while (strncmp("MSGBASE_END", readmsg(), 11) != 0)
 	{
+        if (strncmp("MSGBASE_EMPTY", package, sizeof("MSGBASE_EMPTY")) == 0)
+        {
+            break;
+        }
 		if (strncmp("MSGBASE_END", package, sizeof("MSGBASE_END")) == 0)
 		{
 			break;

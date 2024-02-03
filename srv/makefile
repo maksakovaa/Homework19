@@ -6,8 +6,8 @@ UBLIB = UserBase
 BINPATH = /usr/local/bin
 LIBPATH = /usr/lib
 DATAPATH = /var/lib/Chat
-MBASE = msg_base.dat
-UBASE = users.dat
+#MBASE = msg_base.dat
+#UBASE = users.dat
 
 Chat:	$(SRC) libch libub libsha
 		g++ -o $(TARGET) $(SRC) -L. -l$(CHLIB) -l$(UBLIB) -l$(SHALIB)
@@ -33,8 +33,8 @@ install:
 		install lib$(UBLIB).so $(LIBPATH)
 		install lib$(SHALIB).so $(LIBPATH)
 		mkdir $(DATAPATH) && chmod 777 $(DATAPATH)
-		cp $(UBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(UBASE)
-		cp $(MBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(MBASE)
+#		cp $(UBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(UBASE)
+#		cp $(MBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(MBASE)
 
 uninstall:
 		rm -rf $(BINPATH)/$(TARGET)
