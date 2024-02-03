@@ -134,11 +134,11 @@ int main()
         }
         bzero(package, PACKAGE_LENGTH);
         read(connection, package, sizeof(package));
-        if (strncmp("GET_USRBASE", package, sizeof("GET_USRBASE")) == 0)
+        if (strncmp("GET_USRBASE", package, sizeof("GET_USRBASE")-1) == 0)
         {
             sendUsrBase();
         }
-        else if (strncmp("GET_MSGBASE", package, sizeof("GET_MSGBASE")) == 0)
+        else if (strncmp("GET_MSGBASE", package, sizeof("GET_MSGBASE")-1) == 0)
         {
             sendMsgBase();
         }
@@ -146,7 +146,7 @@ int main()
         {
             regUser();   
         }
-        else if (strncmp("SND_MSG", package, sizeof("SND_MSG")) == 0)
+        else if (strncmp("SND_MSG", package, sizeof("SND_MSG")-1) == 0)
         {
             regMSG();
         }
