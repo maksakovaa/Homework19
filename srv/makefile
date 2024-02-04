@@ -3,14 +3,16 @@ TARGET = chatd
 SHALIB = sha256d
 CHLIB = chatd
 UBLIB = UserBased
+NLIB = netd
 BINPATH = /usr/local/bin
 LIBPATH = /usr/lib
 DATAPATH = /var/lib/chatd
-#MBASE = msg_base.dat
-#UBASE = users.dat
 
-Chat:	$(SRC) libch libub libsha
-		g++ -o $(TARGET) $(SRC) -L. -l$(CHLIB) -l$(UBLIB) -l$(SHALIB)
+Chat:	$(SRC) libnet libch libub libsha
+		g++ -o $(TARGET) $(SRC) -L. -l$(NLIB) -l$(CHLIB) -l$(UBLIB) -l$(SHALIB)
+
+libnet:	src/$(NLIB).cpp src/$(NLIB).h
+		g++ -o lib$(NLIB).so src/$(NLIB).cpp -shared -fPIC
 
 libch:	src/$(CHLIB).cpp src/$(CHLIB).h
 		g++ -o lib$(CHLIB).so src/$(CHLIB).cpp -shared -fPIC
@@ -26,19 +28,20 @@ clean:
 		rm -rf lib$(CHLIB).so
 		rm -rf lib$(UBLIB).so
 		rm -rf lib$(SHALIB).so
+		rm -rf lib$(NLIB).so
 
 install:
 		install $(TARGET) $(BINPATH)
 		install lib$(CHLIB).so $(LIBPATH)
 		install lib$(UBLIB).so $(LIBPATH)
 		install lib$(SHALIB).so $(LIBPATH)
+		install lib$(NLIB).so $(LIBPATH)
 		mkdir $(DATAPATH) && chmod 777 $(DATAPATH)
-#		cp $(UBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(UBASE)
-#		cp $(MBASE) $(DATAPATH) && chmod 777 $(DATAPATH)/$(MBASE)
 
 uninstall:
 		rm -rf $(BINPATH)/$(TARGET)
 		rm -rf $(LIBPATH)/lib$(CHLIB).so
 		rm -rf $(LIBPATH)/lib$(UBLIB).so
 		rm -rf $(LIBPATH)/lib$(SHALIB).so
+		rm -rf $(LIBPATH)/lib$(NLIB).so
 		rm -rf $(DATAPATH)
