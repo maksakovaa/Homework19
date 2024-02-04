@@ -1,22 +1,72 @@
 #include "chatd.h"
-#include <unistd.h>
+#if defined (_WIN32) || defined (_WIN64)
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+#include <stdio.h>
+#pragma comment (lib, "Ws2_32.lib")
 #include <string.h>
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#pragma warning(disable : 4996)
+#define PORT "9999"
+#elif defined (__linux__)
+#include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#define PORT 9999
+#endif
+
 using namespace std;
 
 #define PACKAGE_LENGTH 1024
-#define PORT 9999
 
 UserBase* Users = new UserBase();
 Chat* mainChat = new Chat();
 string delim = "<|>";
+string reqName;
+char package[PACKAGE_LENGTH];
 
+#if defined (_WIN32) || defined (_WIN64)
+WSADATA wsaData;
+int iResult, iSendResult;
+
+SOCKET ListenSocket = INVALID_SOCKET;
+SOCKET ClientSocket = INVALID_SOCKET;
+
+struct addrinfo* result = NULL;
+struct addrinfo hints;
+
+#elif defined (__linux__)
 struct sockaddr_in srvaddress, client;
 socklen_t length;
 int socket_fd, connection, bind_status, connect_status;
-char package[PACKAGE_LENGTH];
+#endif
 
+
+void sendRequest(string& reqName)
+{
+#if defined (_WIN32) || defined (_WIN64)
+    iSendResult = send(ClientSocket, package, sizeof(package), 0);
+    if (iSendResult == SOCKET_ERROR)
+    {
+        cout << "ERROR: Ошибка отправки запроса: " << WSAGetLastError() << endl;
+        closesocket(ClientSocket);
+        WSACleanup();
+        return;
+    }
+    else
+    {
+        cout << reqName << " send" << endl;
+    }
+#elif defined (__linux__)
+    ssize_t bytes = write(connection, package, sizeof(package));
+    if (bytes >= 0)
+    {
+        cout << reqName << " send" << endl;
+    }
+#endif
+}
 void sendUsrBase()
 {
     cout << "GET_USRBASE request accepted" << endl;
@@ -24,18 +74,14 @@ void sendUsrBase()
     {
         bzero(package, PACKAGE_LENGTH);
         strcpy(package, Users->packUser(i).data());
-        ssize_t bytes = write(connection, package, sizeof(package));
-        if (bytes >= 0)
-        {
-            cout << "USRBASE package " << i << " sent." << endl;
-        }
+        reqName = "USRBASE package ";
+        sendRequest(reqName.append(std::to_string(i)));
         if (i == Users->getUserCount() - 1)
         {
-            ssize_t bytes2 = write(connection, "USRBASE_END", sizeof("USRBASE_END"));
-            if (bytes2 >= 0)
-            {
-                cout << "USRBASE sended" << endl;
-            }
+            bzero(package, PACKAGE_LENGTH);
+            strcpy(package, "USRBASE_END");
+            reqName = "USRBASE_END";
+            sendRequest(reqName);
         }
     }
 }
@@ -48,11 +94,8 @@ void sendMsgBase()
     {
         bzero(package, PACKAGE_LENGTH);
         strcpy(package, "MSGBASE_EMPTY");
-        ssize_t bytes = write(connection, package, sizeof(package));
-        if (bytes >= 0)
-        {
-            cout << "MSGBASE EMPTY" << endl;
-        }
+        reqName = "MSGBASE_EMPTY";
+        sendRequest(reqName);
         return;
     }
     
@@ -60,18 +103,14 @@ void sendMsgBase()
     {
         bzero(package, PACKAGE_LENGTH);
         strcpy(package, mainChat->packMsg(i).data());
-        ssize_t bytes = write(connection, package, sizeof(package));
-        if (bytes >= 0)
-        {
-            cout << "MSGBASE package " << i << " sent" << endl;
-        }
+        reqName = "MSGBASE package ";
+        sendRequest(reqName.append(std::to_string(i)));
         if(i == mainChat->getMsgCount()-1)
         {
-            ssize_t bytes = write(connection, "MSGBASE_END", sizeof("MSGBASE_END"));
-            if (bytes >= 0)
-            {
-                cout << "MSGBASE sended" << endl;
-            }
+            bzero(package, PACKAGE_LENGTH);
+            strcpy(package, "MSGBASE_END");
+            reqName = "MSGBASE_END";
+            sendRequest(reqName);
         }
     }
 }
@@ -119,6 +158,23 @@ void chgPwd()
 
 int main()
 {
+#if defined (_WIN32) || (_WIN64)
+    setlocale(LC_ALL, "Russiаn");
+    system("chcp 65001");
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0)
+    {
+        cout << "ERROR: WSAStartup failed with error: " << iResult << endl;
+        return 1;
+    }
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_flags = AI_PASSIVE;
+
+#elif defined (__linux__)
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd == -1)
     {
@@ -135,9 +191,62 @@ int main()
         cout << "ERROR: Ошибка привязки сокета." << endl;
         exit(1);
     }
+#endif
     cout << "Сервер приложения Chat запущен." << endl;
     while (true)
     {
+#if defined (_WIN32) || defined (_WIN64)
+        iResult = getaddrinfo(NULL, PORT, &hints, &result);
+        if (iResult != 0)
+        {
+            cout << "ERROR: getaddrinfo failed with error: " << iResult << endl;
+            WSACleanup();
+            return 1;
+        }
+
+        ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+        if (ListenSocket == INVALID_SOCKET)
+        {
+            printf("socket failed with error: %ld\n", WSAGetLastError());
+            freeaddrinfo(result);
+            WSACleanup();
+            return 1;
+        }
+
+        iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+        if (iResult == SOCKET_ERROR)
+        {
+            printf("bind failed with error: %d\n", WSAGetLastError());
+            freeaddrinfo(result);
+            closesocket(ListenSocket);
+            WSACleanup();
+            return 1;
+        }
+
+        freeaddrinfo(result);
+
+        iResult = listen(ListenSocket, SOMAXCONN);
+
+        if (iResult == SOCKET_ERROR)
+        {
+            cout << "ERROR: Ошибка при постановке на приём данных: " << WSAGetLastError() << endl;
+            closesocket(ListenSocket);
+            WSACleanup();
+            return 1;
+        }
+
+        ClientSocket = accept(ListenSocket, NULL, NULL);
+        if (ClientSocket == INVALID_SOCKET)
+        {
+            cout << "ERROR: Ошибка принятия покдключения: " << WSAGetLastError() << endl;
+            closesocket(ListenSocket);
+            WSACleanup();
+            return 1;
+        }
+
+        closesocket(ListenSocket);
+        iResult = recv(ClientSocket, package, PACKAGE_LENGTH, 0);
+#elif defined (__linux__)
         connect_status = listen(socket_fd, 20);
         if (connect_status == -1)
         {
@@ -157,6 +266,7 @@ int main()
         }
         bzero(package, PACKAGE_LENGTH);
         read(connection, package, sizeof(package));
+#endif
         if (strncmp("GET_USRBASE", package, sizeof("GET_USRBASE")-1) == 0)
         {
             sendUsrBase();
@@ -183,7 +293,20 @@ int main()
         }
         
     }
+#if defined (_WIN32) || defined (_WIN64)
+    iResult = shutdown(ClientSocket, SD_SEND);
+    if (iResult == SOCKET_ERROR) {
+        printf("ERROR: shutdown failed with error: %d\n", WSAGetLastError());
+        closesocket(ClientSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    closesocket(ClientSocket);
+    WSACleanup();
+#elif defined (__linux__)
     close(socket_fd);
+#endif
     delete mainChat;
     delete Users;
     return 0;

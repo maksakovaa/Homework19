@@ -38,7 +38,7 @@ private:
 	std::vector<User>* usrBase;
 	SHA256 sha256;
 #if defined (_WIN32) || defined (_WIN64)
-	string UBPath = "users.dat";
+	string UBPath = "srv_users.dat";
 #elif defined (__linux__)
 	string UBPath = "/var/lib/chatd/users.dat";
 #endif

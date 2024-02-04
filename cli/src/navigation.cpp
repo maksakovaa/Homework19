@@ -572,7 +572,7 @@ void menuMainChat()
 void menuAbout()
 {
 	consoleClear();
-	cout << "Программа консольный чат. [0.19]\n© Максаков А.А., 2024\nСборка для " << getOsName() << endl;
+	cout << "Программа консольный чат. [0.59]\n© Максаков А.А., 2024\nСборка для " << getOsName() << endl;
 	cout << "PID процесса: " << getProcId() << endl;
 	cout << "1 - Вернуться в главное меню\n2 - Выход из программы" << endl;
 	cin >> choice;

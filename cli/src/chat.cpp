@@ -172,8 +172,8 @@ void Chat::saveMsgBase()
 void Chat::getMsgBase()
 {
 	net* start = new net;
-	char pkg[] = {"GET_MSGBASE"};
-	start->sendReq(pkg, sizeof(pkg)-1);
+	const char* pkg = "GET_MSGBASE";
+	start->sendReq(pkg);
 	std::vector<string>* sMessage = new std::vector<string>;
 	start->getMsgBase(sMessage);
 	msgBase->clear();
@@ -182,4 +182,5 @@ void Chat::getMsgBase()
 		msgBase->push_back(splitMsgPkg(sMessage->at(i)));
 	}
 	delete start, sMessage;
+	cout << "MSG Count: " << msgBase->size() << endl;
 }

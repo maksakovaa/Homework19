@@ -47,8 +47,8 @@ void UserBase::getUserBase()
 {
 	usrBase->clear();
 	net* start = new net;
-	char pkg[] = {"GET_USRBASE"};
-	start->sendReq(pkg, sizeof(pkg)-1);
+	const char* pkg = "GET_USRBASE";
+	start->sendReq(pkg);
 	std::vector<string> users;
 	start->getUsrBase(users);
 	for (int i = 0; i < users.size(); i++)
@@ -57,6 +57,7 @@ void UserBase::getUserBase()
 		addUsers(newUser);
 	}
 	delete start;
+	cout << "Users: " << getUserCount() << endl;
 }
 
 void UserBase::regUsers(string& name, string& login, string& pwd)
@@ -106,7 +107,7 @@ void UserBase::chgPwd(int userId, string& pwd)
 	usrPkg.append(std::to_string(userId));
 	usrPkg.append(delim);
 	usrPkg.append(sha256(pwd));
-	start->sendReq(usrPkg.data(), usrPkg.size());
+	start->sendReq(usrPkg.data());
 	delete start;
 	getUserBase();
 }
@@ -139,7 +140,7 @@ void UserBase::delUser(int userId)
 	string usrPkg = "DEL_USER";
 	usrPkg.append(delim);
 	usrPkg.append(std::to_string(userId));
-	start->sendReq(usrPkg.data(), usrPkg.size());
+	start->sendReq(usrPkg.data());
 	delete start;
 	getUserBase();
 }
