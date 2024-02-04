@@ -24,7 +24,7 @@ net::net()
     if (iResult != 0)
     {
         cout << "ERROR: getaddrinfo failed with error: " << iResult << endl;
-        WSACleanup();#if defined (_WIN32) || defined (_WIN64)
+        WSACleanup();
         return;
     }
 
