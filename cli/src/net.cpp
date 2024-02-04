@@ -25,16 +25,17 @@ net::net()
     {
         cout << "ERROR: getaddrinfo failed with error: " << iResult << endl;
         WSACleanup();
-        return;
+        exit(1);
     }
 
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
         ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype,
             ptr->ai_protocol);
-        if (ConnectSocket == INVALID_SOCKET) {
+        if (ConnectSocket == INVALID_SOCKET)
+        {
             printf("socket failed with error: %ld\n", WSAGetLastError());
             WSACleanup();
-            return;
+            exit(1);
         }
 
         iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -53,7 +54,7 @@ net::net()
     {
         printf("Unable to connect to server!\n");
         WSACleanup();
-        return;
+        exit(1);
     }
 
 #elif defined (__linux__)
@@ -98,7 +99,7 @@ void net::sendReq(const char* package)
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);
         WSACleanup();
-        return;
+        exit(1);
     }
 
     iResult = shutdown(ConnectSocket, SD_SEND);
@@ -107,7 +108,7 @@ void net::sendReq(const char* package)
         printf("shutdown failed with error: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);
         WSACleanup();
-        return;
+        exit(1);
     }
 #elif defined (__linux__)
     ssize_t bytes = write(socket_fd, package, (int)strlen(package));
@@ -135,6 +136,7 @@ char* net::readmsg()
     else
     {
         cout << "ERROR: recv failed with error: " << WSAGetLastError();
+        exit(1);
     }
 #elif defined (__linux__)
     read(socket_fd, package, sizeof(package));
