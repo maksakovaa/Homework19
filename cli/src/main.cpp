@@ -1,7 +1,7 @@
 #include "navigation.h"
 
 static void setConsLocale() {
-	setlocale(LC_ALL, "Russi‡n");
+	setlocale(LC_ALL, "Russi–∞n");
 #if defined (_WIN32) || defined (_WIN64)
 	system("chcp 65001");
 #endif
@@ -15,6 +15,7 @@ bool auth{ false };
 int main()
 {
 	setConsLocale();
+
 	menu();
 
 	delete mainChat;

@@ -4,6 +4,22 @@
 #include <endian.h>
 #endif
 
+std::string curDateTime()
+{
+    time_t now = time(NULL);
+    char str[26];
+#if defined (_WIN32) || (_WIN64)
+    ctime_s(str, 26, &now);
+#elif defined (__linux__)
+    ctime_r(&now, str);
+#endif
+    std::string result = "[";
+    result.append(str);
+    result.pop_back();
+    result.append("]: ");
+    return result;
+}
+
 SHA256::SHA256()
 {
     reset();

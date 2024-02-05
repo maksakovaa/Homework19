@@ -1,5 +1,5 @@
 #pragma once
-
+#include <ctime>
 #include <string>
 
 #ifdef _MSC_VER
@@ -9,6 +9,8 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
 #endif
+
+std::string curDateTime();
 
 class SHA256
 {

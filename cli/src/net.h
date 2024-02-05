@@ -2,12 +2,13 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include "sha256.h"
 #if defined (_WIN32) || defined (_WIN64)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+#include <string>
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
@@ -15,17 +16,12 @@
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #pragma warning(disable : 4996)
-#define PORT "9999"
 #elif defined (__linux__)
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define PORT 9999
 #endif
-
-#define PACKAGE_LENGTH 1024
-#define SERVER "127.0.0.1"
 
 using std::cout;
 using std::endl;
@@ -37,14 +33,22 @@ private:
 #if defined (_WIN32) || defined (_WIN64)
     SOCKET ConnectSocket = INVALID_SOCKET;
     struct addrinfo* result = NULL, *ptr = NULL;
+    string netCfgPath = "net_settings.ini";
 #elif defined (__linux__)
+    string netCfgPath = "/var/lib/Chat/net_settings.ini";
     int socket_fd, connection;
     struct sockaddr_in srvaddress, client;
 #endif
-    char package[PACKAGE_LENGTH];
+    static const int package_length = 1024;
+    char package[package_length];
+    string delim = " = ";
+    string server_ip;
+    string chat_port;
 public:
     net();
     ~net();
+    void readConfig();
+    void saveConfig();
     void sendReq(const char* package);
     char* readmsg();
     void getUsrBase(std::vector<string>& users);

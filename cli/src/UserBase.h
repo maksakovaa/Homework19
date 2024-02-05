@@ -1,7 +1,6 @@
 #pragma once
 #include <iomanip> 
 #include <new>
-#include "sha256.h"
 #include "net.h"
 
 using std::cout;

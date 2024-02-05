@@ -2,6 +2,10 @@
 
 UserBase::UserBase()
 {
+	setlocale(LC_ALL, "Russiаn");
+#if defined (_WIN32) || defined (_WIN64)
+	system("chcp 65001");
+#endif
 	try
 	{
 		usrBase = new std::vector<User>;
@@ -57,7 +61,6 @@ void UserBase::getUserBase()
 		addUsers(newUser);
 	}
 	delete start;
-	cout << "Users: " << getUserCount() << endl;
 }
 
 void UserBase::regUsers(string& name, string& login, string& pwd)

@@ -2,16 +2,16 @@
 
 net::net()
 {
+    readConfig();
 #if defined (_WIN32) || defined (_WIN64)
-    bzero(package, PACKAGE_LENGTH);
+    bzero(package, package_length);
     WSADATA wsaData;
-    int iResult;
     struct addrinfo hints;
 
-    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0)
     {
-        cout << "ERROR: WSAStartup failed with error: " << iResult << endl;
+        cout << curDateTime() << "ERROR: WSAStartup failed with error: " << iResult << endl;
         exit(1);
     }
 
@@ -20,10 +20,10 @@ net::net()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    iResult = getaddrinfo(SERVER, PORT, &hints, &result);
+    iResult = getaddrinfo(server_ip.data(), chat_port.data(), &hints, &result);
     if (iResult != 0)
     {
-        cout << "ERROR: getaddrinfo failed with error: " << iResult << endl;
+        cout << curDateTime() << "ERROR: getaddrinfo failed with error: " << iResult << endl;
         WSACleanup();
         exit(1);
     }
@@ -33,7 +33,7 @@ net::net()
             ptr->ai_protocol);
         if (ConnectSocket == INVALID_SOCKET)
         {
-            printf("socket failed with error: %ld\n", WSAGetLastError());
+            cout << curDateTime() << "ERROR: Socket failed with error: " << WSAGetLastError() << endl;
             WSACleanup();
             exit(1);
         }
@@ -52,7 +52,7 @@ net::net()
 
     if (ConnectSocket == INVALID_SOCKET)
     {
-        printf("Unable to connect to server!\n");
+        cout << curDateTime() << "ERROR: Не удалось подключиться к серверу." << endl;
         WSACleanup();
         exit(1);
     }
@@ -62,19 +62,19 @@ net::net()
 
     if(socket_fd == -1)
     {
-        cout << "ERROR: Ошибка создания сокета." << endl;
+        cout << curDateTime() << "ERROR: Ошибка создания сокета." << endl;
         exit(1);
     }
        
-    srvaddress.sin_addr.s_addr = inet_addr(SERVER);
-    srvaddress.sin_port = htons(PORT);
+    srvaddress.sin_addr.s_addr = inet_addr(server_ip.data());
+    srvaddress.sin_port = htons(stoi(chat_port));
     srvaddress.sin_family = AF_INET;
 
     connection = connect(socket_fd, (struct sockaddr*)&srvaddress, sizeof(srvaddress));
     
     if(connection == -1)
     {
-        cout << "ERROR: Ошибка подключения к серверу." << endl;
+        cout << curDateTime() << "ERROR: Ошибка подключения к серверу." << endl;
         exit(1);
     }
 #endif
@@ -90,13 +90,55 @@ net::~net()
 #endif
 }
 
+void net::readConfig()
+{
+    std::ifstream config(netCfgPath);
+    if (config.is_open())
+    {
+        string str;
+        while (std::getline(config, str))
+        {
+            if (strncmp("server_ip", str.data(), (int)strlen("server_ip")) == 0)
+                server_ip = str.erase(0, str.find(delim) + delim.length());
+            if (strncmp("chat_port", str.data(), (int)strlen("chat_port")) == 0)
+                chat_port = str.erase(0, str.find(delim) + delim.length());
+        }
+        config.close();
+    }
+    else
+    {
+        server_ip = "127.0.0.1";
+        chat_port = "9999";
+        saveConfig();
+    }
+}
+
+void net::saveConfig()
+{
+    std::ofstream config(netCfgPath, std::ios::trunc);
+    if (!config.is_open())
+    {
+        cout << curDateTime() << "Ошибка открытия файла!" << endl;
+    }
+    else
+    {
+        config << "server_ip = ";
+        config << server_ip;
+        config << "\n";
+        config << "chat_port = ";
+        config << chat_port;
+        config << "\n";
+        config.close();
+    }
+}
+
 void net::sendReq(const char* package)
 {
 #if defined (_WIN32) || defined (_WIN64)
     int iResult = send(ConnectSocket, package, (int)strlen(package), 0);
     if (iResult == SOCKET_ERROR)
     {
-        printf("send failed with error: %d\n", WSAGetLastError());
+        cout << curDateTime() << "ERROR: Ошибка отправки: " << WSAGetLastError() << endl;
         closesocket(ConnectSocket);
         WSACleanup();
         exit(1);
@@ -105,37 +147,29 @@ void net::sendReq(const char* package)
     iResult = shutdown(ConnectSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)
     {
-        printf("shutdown failed with error: %d\n", WSAGetLastError());
+        cout << curDateTime() << "ERROR: Ошибка выключения: " << WSAGetLastError() <<endl;
         closesocket(ConnectSocket);
         WSACleanup();
         exit(1);
     }
 #elif defined (__linux__)
-    ssize_t bytes = write(socket_fd, package, (int)strlen(package));
-    if (bytes >= 0)
-    {
-        cout << "Send " << package << endl;
-    }
-    
+    ssize_t bytes = write(socket_fd, package, (int)strlen(package));  
 #endif
 }
 
 char* net::readmsg()
 {
-    bzero(package, PACKAGE_LENGTH);
+    bzero(package, package_length);
 #if defined (_WIN32) || defined (_WIN64)
     int iResult = recv(ConnectSocket, package, sizeof(package), 0);
     if (iResult == 0)
     {
-        cout << "Connection closed" << endl;
+        cout << curDateTime() << "Connection closed" << endl;
     }
-    else if (iResult > 0)
-    {
-        cout << "Recived " << iResult << " bytes." << endl;
-    }
+    else if (iResult > 0) {}
     else
     {
-        cout << "ERROR: recv failed with error: " << WSAGetLastError();
+        cout << curDateTime() << "ERROR: recv failed with error: " << WSAGetLastError();
         exit(1);
     }
 #elif defined (__linux__)
@@ -147,7 +181,7 @@ char* net::readmsg()
 void net::getUsrBase(std::vector<string>& users)
 {
     users.clear();
-    bzero(package, PACKAGE_LENGTH);
+    bzero(package, package_length);
     while (strncmp("USRBASE_END", readmsg(), sizeof("USRBASE_END")) != 0)
 	{
         users.push_back(package);
@@ -160,7 +194,7 @@ void net::getUsrBase(std::vector<string>& users)
 
 void net::regUser(string& usrPkg)
 {
-    bzero(package, PACKAGE_LENGTH);
+    bzero(package, package_length);
     strcpy(package, usrPkg.data());
     sendReq(package);
 }
@@ -171,7 +205,7 @@ void net::getMsgBase(std::vector<string>* sMsg)
 	{
         if (strncmp("MSGBASE_EMPTY", package, sizeof("MSGBASE_EMPTY")) == 0)
         {
-            cout << "MSGBASE_EMPTY" << endl;
+            cout << curDateTime() << "MSGBASE_EMPTY" << endl;
             break;
             return;
         }
@@ -186,7 +220,7 @@ void net::getMsgBase(std::vector<string>* sMsg)
 
 void net::regMsg(string msgPkg)
 {
-    bzero(package, PACKAGE_LENGTH);
+    bzero(package, package_length);
     strcpy(package, msgPkg.data());
     sendReq(package);
 }
