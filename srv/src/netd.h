@@ -7,7 +7,7 @@
 #include <stdio.h>
 #pragma comment (lib, "Ws2_32.lib")
 #include <string.h>
-#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#define bzero(b,len) (memset((b), '0', (len)), (void) 0)
 #pragma warning(disable : 4996)
 #elif defined (__linux__)
 #include <string.h>

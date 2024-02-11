@@ -15,9 +15,7 @@ bool auth{ false };
 int main()
 {
 	setConsLocale();
-
 	menu();
-
 	delete mainChat;
 	delete Users;
 	return 0;

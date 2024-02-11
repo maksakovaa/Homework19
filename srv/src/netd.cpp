@@ -103,7 +103,7 @@ void net::netGateway()
     while (true)
     {
 #if defined (_WIN32) || defined (_WIN64)
-        iResult = getaddrinfo(NULL, port, &hints, &result);
+        iResult = getaddrinfo(NULL, chat_port.data(), &hints, &result);
         if (iResult != 0)
         {
             cout << curDateTime() << "ERROR: getaddrinfo failed with error: " << iResult << endl;

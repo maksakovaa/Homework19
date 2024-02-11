@@ -33,7 +33,7 @@ Chat::~Chat()
 
 int Chat::getMsgCount()
 {
-	return msgBase->size();
+	return (int)msgBase->size();
 }
 
 void Chat::sendMsg(Message newMsg)

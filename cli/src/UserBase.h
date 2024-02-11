@@ -27,7 +27,6 @@ public:
     void showUsers();
 	void addUsers(User& usrStr);
 	void addUsers(string& name, string& login, string& pwd);
-	void addUsers(const char name[], const char login[], const char pwd[]);
 	void regUsers(string& name, string& login, string& pwd);
 	void chgPwd(int userId, std::string& pwd);
 	int getUserCount();

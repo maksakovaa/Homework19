@@ -2,6 +2,7 @@
 
 Chat::Chat()
 {
+	cout << "Creating message base..." << endl;
 	try
 	{
 		msgBase = new std::vector<Message>;
@@ -53,7 +54,7 @@ Message Chat::splitMsgPkg(string& msgPkg)
 
 int Chat::getMsgCount()
 {
-	return msgBase->size();
+	return (int)msgBase->size();
 }
 
 std::vector<int> Chat::getMsgToCount(string msgFrom = "ALL", string msgTo = "ALL")
@@ -138,10 +139,9 @@ void Chat::sendMsg(string msgTo, string msgFrom, string& msg)
 {
 	net* online = new net;
 	Message newMsg(msgTo, msgFrom, msg);
-	string req = "SND_MSG";
-	req.append(delim);
+	string req = "SND_MSG<|>";
 	req.append(packMsg(newMsg));
-	online->regMsg(req);
+	online->sendReq(req);
 	delete online;
 	getMsgBase();
 }
@@ -172,15 +172,13 @@ void Chat::saveMsgBase()
 void Chat::getMsgBase()
 {
 	net* start = new net;
-	const char* pkg = "GET_MSGBASE";
-	start->sendReq(pkg);
-	std::vector<string>* sMessage = new std::vector<string>;
+	std::vector<string> sMessage;
 	start->getMsgBase(sMessage);
 	msgBase->clear();
-	for (int i = 0; i < sMessage->size(); i++)
+	for (int i = 0; i < sMessage.size(); i++)
 	{
-		msgBase->push_back(splitMsgPkg(sMessage->at(i)));
+		msgBase->push_back(splitMsgPkg(sMessage.at(i)));
 	}
-	delete start, sMessage;
+	delete start;
 	cout << "MSG Count: " << msgBase->size() << endl;
 }

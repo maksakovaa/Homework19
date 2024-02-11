@@ -2,10 +2,7 @@
 
 UserBase::UserBase()
 {
-	setlocale(LC_ALL, "Russiаn");
-#if defined (_WIN32) || defined (_WIN64)
-	system("chcp 65001");
-#endif
+	cout << "Creating user base..." << endl;
 	try
 	{
 		usrBase = new std::vector<User>;
@@ -51,8 +48,6 @@ void UserBase::getUserBase()
 {
 	usrBase->clear();
 	net* start = new net;
-	const char* pkg = "GET_USRBASE";
-	start->sendReq(pkg);
 	std::vector<string> users;
 	start->getUsrBase(users);
 	for (int i = 0; i < users.size(); i++)
@@ -68,7 +63,7 @@ void UserBase::regUsers(string& name, string& login, string& pwd)
 	net* start = new net;
 	string usrPkg = "REG_USER<|>";
 	usrPkg.append(packUsr(name, login, pwd));
-	start->regUser(usrPkg);
+	start->sendReq(usrPkg);
 	delete start;
 	getUserBase();
 }
@@ -80,14 +75,6 @@ void UserBase::showUsers()
 	{
 		cout << setw(17) << i << setw(20) << usrBase->at(i).name << setw(10) << usrBase->at(i).login << endl;
 	}
-}
-
-void UserBase::addUsers(const char name[], const char login[], const char pwd[])
-{
-	string sname = name;
-	string slogin = login;
-	string spwd = pwd;
-	addUsers(sname, slogin, spwd);
 }
 
 void UserBase::addUsers(string& name, string& login, string& pwd)
@@ -105,19 +92,18 @@ void UserBase::addUsers(User& newUser)
 void UserBase::chgPwd(int userId, string& pwd)
 {
 	net* start = new net;
-	string usrPkg = "CHG_PWD";
-	usrPkg.append(delim);
+	string usrPkg = "CHG_PWD<|>";
 	usrPkg.append(std::to_string(userId));
 	usrPkg.append(delim);
 	usrPkg.append(sha256(pwd));
-	start->sendReq(usrPkg.data());
+	start->sendReq(usrPkg);
 	delete start;
 	getUserBase();
 }
 
 int UserBase::getUserCount()
 {
-	return usrBase->size();
+	return (int)usrBase->size();
 }
 
 int UserBase::getUserId(string& login)
@@ -143,7 +129,7 @@ void UserBase::delUser(int userId)
 	string usrPkg = "DEL_USER";
 	usrPkg.append(delim);
 	usrPkg.append(std::to_string(userId));
-	start->sendReq(usrPkg.data());
+	start->sendReq(usrPkg);
 	delete start;
 	getUserBase();
 }

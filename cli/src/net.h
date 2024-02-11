@@ -8,13 +8,10 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string>
-
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
-
-#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#define bzero(b,len) (memset((b), '0', (len)), (void) 0)
 #pragma warning(disable : 4996)
 #elif defined (__linux__)
 #include <string.h>
@@ -31,8 +28,11 @@ class net
 {
 private:
 #if defined (_WIN32) || defined (_WIN64)
+    WSADATA wsaData;
+
     SOCKET ConnectSocket = INVALID_SOCKET;
     struct addrinfo* result = NULL, *ptr = NULL;
+    struct addrinfo hints;
     string netCfgPath = "net_settings.ini";
 #elif defined (__linux__)
     string netCfgPath = "/var/lib/Chat/net_settings.ini";
@@ -49,10 +49,9 @@ public:
     ~net();
     void readConfig();
     void saveConfig();
-    void sendReq(const char* package);
-    char* readmsg();
+    void sendReq();
+    void sendReq(string& usrRequest);
+    void readmsg();
     void getUsrBase(std::vector<string>& users);
-    void getMsgBase(std::vector<string>* sMsg);
-    void regUser(string& usrPkg);
-    void regMsg(string msgPkg);
+    void getMsgBase(std::vector<string>& sMsg);
 };

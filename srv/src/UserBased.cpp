@@ -74,7 +74,7 @@ void UserBase::addUsers(User& newUser)
 
 int UserBase::getUserCount()
 {
-	return usrBase->size();
+	return (int)usrBase->size();
 }
 
 void UserBase::saveUsrBase()
